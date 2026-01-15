@@ -17,13 +17,17 @@
   },
   "files": [
     "dist",
-    "src"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
-    "build": "rollup -c",
+    "prebuild": "rm -rf dist types",
+    "build": "tsc && rollup -c",
     "test": "vitest run",
     "test:watch": "vitest",
-    "bench": "vitest bench"
+    "bench": "vitest bench",
+    "verify": "node scripts/verify-build.js",
+    "prepublishOnly": "yarn build && yarn test && yarn verify"
   },
   "keywords": [
     "exr",
@@ -40,7 +44,12 @@
     "fflate": "^0.8.2"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@types/node": "^25.0.9",
     "rollup": "^4.9.0",
+    "rollup-plugin-dts": "^6.3.0",
+    "typescript": "^5.9.3",
     "vitest": "^1.0.0"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
