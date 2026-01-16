@@ -8,6 +8,8 @@ import { Header, writeHeaders } from './header.js';
 
 export * from './attributes.js';
 export * from './header.js';
+export * from './read-attributes.js';
+export * from './read-header.js';
 
 /**
  * Requirements flags for the file

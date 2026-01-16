@@ -72,3 +72,25 @@ export function getNativeEndianness() {
 
 /** True if native byte order is little-endian */
 export const isLittleEndian = getNativeEndianness() === 'little';
+
+/**
+ * Read file to ArrayBuffer
+ * - Node.js: Reads from filesystem
+ * - Browser: Not directly supported (use fetch or FileReader)
+ * @param {string} filename
+ * @returns {Promise<ArrayBuffer>}
+ */
+export async function readFromFile(filename) {
+  if (isNode) {
+    const fs = await import('fs/promises');
+    const buffer = await fs.readFile(filename);
+    // Convert Node.js Buffer to ArrayBuffer
+    return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+  } else if (isBrowser) {
+    throw new Error(
+      'readFromFile not supported in browser. Use fetch() or FileReader API to load the file, then pass the ArrayBuffer to EXRReader.'
+    );
+  } else {
+    throw new Error('readFromFile not supported in this environment');
+  }
+}

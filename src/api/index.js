@@ -17,6 +17,9 @@ export { SpecificChannels, AnyChannels, AnyChannel, FlatSamples } from '../image
 export { Encoding, LayerAttributes, ImageAttributes } from '../meta/header.js';
 export { ChannelDescription, ChannelList } from '../meta/attributes.js';
 
+// Reading API
+export { readRgbaFile, readRgbFile, EXRReader } from './read.js';
+
 /**
  * Write an RGBA image to a file
  * @param {string|null} path - File path (Node) or null for ArrayBuffer

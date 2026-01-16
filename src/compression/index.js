@@ -130,9 +130,10 @@ export function compressBlock(method, uncompressedLE, context = null) {
  * @param {number} method - Compression method
  * @param {Uint8Array} compressedLE - Compressed data (little-endian)
  * @param {number} expectedSize - Expected uncompressed size
+ * @param {CompressionContext} [context] - Optional context for channel-aware decompression
  * @returns {Uint8Array} - Decompressed data
  */
-export function decompressBlock(method, compressedLE, expectedSize) {
+export function decompressBlock(method, compressedLE, expectedSize, context = null) {
   // If the compressed size equals expected size, data was stored uncompressed
   if (compressedLE.length === expectedSize) {
     return compressedLE;
@@ -150,14 +151,23 @@ export function decompressBlock(method, compressedLE, expectedSize) {
       return decompressZIP(compressedLE, expectedSize);
 
     case Compression.PIZ:
-      throw new Error('PIZ decompression not yet implemented');
+      if (!context) {
+        throw new Error('PIZ decompression requires channel context');
+      }
+      return decompressPIZ(compressedLE, context.channels, context.width, context.height, expectedSize);
 
     case Compression.PXR24:
-      throw new Error('PXR24 decompression not yet implemented');
+      if (!context) {
+        throw new Error('PXR24 decompression requires channel context');
+      }
+      return decompressPXR24(compressedLE, context.channels, context.width, context.height, expectedSize);
 
     case Compression.B44:
     case Compression.B44A:
-      throw new Error('B44 decompression not yet implemented');
+      if (!context) {
+        throw new Error('B44 decompression requires channel context');
+      }
+      return decompressB44(compressedLE, context.channels, context.width, context.height, expectedSize);
 
     default:
       throw new Error(`Unknown compression method: ${method}`);
