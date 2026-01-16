@@ -1,8 +1,5 @@
-/**
- * EXR Header Reading
- *
- * Parse EXR file headers including magic number, version, and attributes.
- */
+// EXR Header Reading
+// Parse EXR file headers including magic number, version, and attributes.
 
 import { BinaryReader } from '../io/binary-reader.js';
 import { MAGIC_NUMBER, EXR_VERSION, VersionFlags, RequiredAttributes, LayerType } from '../core/constants.js';
@@ -10,74 +7,64 @@ import { Vec2, IntegerBounds, Compression, LineOrder, LevelMode, scanLinesPerBlo
 import { readAttribute } from './read-attributes.js';
 import { ChannelList } from './attributes.js';
 
-/**
- * Parsed EXR header containing all attributes
- */
+// Parsed EXR header containing all attributes
 export class ParsedHeader {
   constructor() {
     // Required attributes
-    /** @type {ChannelList|null} */
+    // @type {ChannelList|null}
     this.channels = null;
-    /** @type {number} */
+    // @type {number}
     this.compression = Compression.Uncompressed;
-    /** @type {IntegerBounds|null} */
+    // @type {IntegerBounds|null}
     this.dataWindow = null;
-    /** @type {IntegerBounds|null} */
+    // @type {IntegerBounds|null}
     this.displayWindow = null;
-    /** @type {number} */
+    // @type {number}
     this.lineOrder = LineOrder.Increasing;
-    /** @type {number} */
+    // @type {number}
     this.pixelAspectRatio = 1.0;
-    /** @type {Vec2} */
+    // @type {Vec2}
     this.screenWindowCenter = new Vec2(0, 0);
-    /** @type {number} */
+    // @type {number}
     this.screenWindowWidth = 1.0;
 
     // Optional/tiled attributes
-    /** @type {{ tileSize: Vec2, levelMode: number, roundingMode: number }|null} */
+    // @type {{ tileSize: Vec2, levelMode: number, roundingMode: number }|null}
     this.tiles = null;
 
     // Multi-part attributes
-    /** @type {string|null} */
+    // @type {string|null}
     this.name = null;
-    /** @type {string|null} */
+    // @type {string|null}
     this.type = null;
-    /** @type {number|null} */
+    // @type {number|null}
     this.chunkCount = null;
 
     // Custom attributes
-    /** @type {Map<string, any>} */
+    // @type {Map<string, any>}
     this.customAttributes = new Map();
   }
 
-  /**
-   * Get image width
-   * @returns {number}
-   */
+  // Get image width
+// @returns {number}
   get width() {
     return this.dataWindow?.size.x ?? 0;
   }
 
-  /**
-   * Get image height
-   * @returns {number}
-   */
+  // Get image height
+// @returns {number}
   get height() {
     return this.dataWindow?.size.y ?? 0;
   }
 
-  /**
-   * Check if this is a tiled image
-   * @returns {boolean}
-   */
+  // Check if this is a tiled image
+// @returns {boolean}
   get isTiled() {
     return this.tiles !== null;
   }
 
-  /**
-   * Get the block storage mode
-   * @returns {Blocks}
-   */
+  // Get the block storage mode
+// @returns {Blocks}
   get blocks() {
     if (this.tiles) {
       return new Blocks('tiles', this.tiles.tileSize, this.tiles.levelMode, this.tiles.roundingMode);
@@ -85,18 +72,14 @@ export class ParsedHeader {
     return Blocks.ScanLines;
   }
 
-  /**
-   * Get scanlines per block for this header's compression
-   * @returns {number}
-   */
+  // Get scanlines per block for this header's compression
+// @returns {number}
   get scanLinesPerBlock() {
     return scanLinesPerBlock(this.compression);
   }
 
-  /**
-   * Validate that all required attributes are present
-   * @throws {Error} if missing required attributes
-   */
+  // Validate that all required attributes are present
+// @throws {Error} if missing required attributes
   validate() {
     const missing = [];
     if (!this.channels) missing.push('channels');
@@ -114,52 +97,46 @@ export class ParsedHeader {
   }
 }
 
-/**
- * Parsed EXR file metadata
- */
+// Parsed EXR file metadata
 export class ParsedMeta {
-  /**
-   * @param {number} version
-   * @param {number} flags
-   * @param {ParsedHeader[]} headers
-   */
+  // @param {number} version
+// @param {number} flags
+// @param {ParsedHeader[]} headers
   constructor(version, flags, headers) {
     this.version = version;
     this.flags = flags;
     this.headers = headers;
   }
 
-  /** @returns {boolean} */
+  // @returns {boolean}
   get isTiled() {
     return (this.flags & VersionFlags.TILED) !== 0;
   }
 
-  /** @returns {boolean} */
+  // @returns {boolean}
   get hasLongNames() {
     return (this.flags & VersionFlags.LONG_NAMES) !== 0;
   }
 
-  /** @returns {boolean} */
+  // @returns {boolean}
   get isDeepData() {
     return (this.flags & VersionFlags.DEEP_DATA) !== 0;
   }
 
-  /** @returns {boolean} */
+  // @returns {boolean}
   get isMultiPart() {
     return (this.flags & VersionFlags.MULTI_PART) !== 0;
   }
 
-  /** @returns {number} */
+  // @returns {number}
   get layerCount() {
     return this.headers.length;
   }
 }
 
-/**
- * Read and validate EXR magic number
- * @param {BinaryReader} reader
- * @throws {Error} if magic number is invalid
- */
+// Read and validate EXR magic number
+// @param {BinaryReader} reader
+// @throws {Error} if magic number is invalid
 export function readMagicNumber(reader) {
   const magic = reader.readU32();
   if (magic !== MAGIC_NUMBER) {
@@ -167,11 +144,9 @@ export function readMagicNumber(reader) {
   }
 }
 
-/**
- * Read and parse version and flags
- * @param {BinaryReader} reader
- * @returns {{ version: number, flags: number }}
- */
+// Read and parse version and flags
+// @param {BinaryReader} reader
+// @returns {{ version: number, flags: number }}
 export function readVersionAndFlags(reader) {
   const versionAndFlags = reader.readU32();
   const version = versionAndFlags & 0xff;
@@ -189,11 +164,9 @@ export function readVersionAndFlags(reader) {
   return { version, flags };
 }
 
-/**
- * Read a single header
- * @param {BinaryReader} reader
- * @returns {ParsedHeader}
- */
+// Read a single header
+// @param {BinaryReader} reader
+// @returns {ParsedHeader}
 export function readHeader(reader) {
   const header = new ParsedHeader();
 
@@ -252,12 +225,10 @@ export function readHeader(reader) {
   return header;
 }
 
-/**
- * Read all headers from an EXR file
- * @param {BinaryReader} reader
- * @param {boolean} isMultiPart
- * @returns {ParsedHeader[]}
- */
+// Read all headers from an EXR file
+// @param {BinaryReader} reader
+// @param {boolean} isMultiPart
+// @returns {ParsedHeader[]}
 export function readHeaders(reader, isMultiPart) {
   const headers = [];
 
@@ -281,11 +252,9 @@ export function readHeaders(reader, isMultiPart) {
   return headers;
 }
 
-/**
- * Read complete EXR metadata (magic, version, headers)
- * @param {BinaryReader} reader
- * @returns {ParsedMeta}
- */
+// Read complete EXR metadata (magic, version, headers)
+// @param {BinaryReader} reader
+// @returns {ParsedMeta}
 export function readMeta(reader) {
   // Read magic number
   readMagicNumber(reader);
@@ -302,11 +271,9 @@ export function readMeta(reader) {
   return new ParsedMeta(version, flags, headers);
 }
 
-/**
- * Calculate the number of chunks in a layer
- * @param {ParsedHeader} header
- * @returns {number}
- */
+// Calculate the number of chunks in a layer
+// @param {ParsedHeader} header
+// @returns {number}
 export function calculateChunkCount(header) {
   if (header.chunkCount !== null) {
     return header.chunkCount;
@@ -394,12 +361,10 @@ export function calculateChunkCount(header) {
   return 0;
 }
 
-/**
- * Read offset table for a layer
- * @param {BinaryReader} reader
- * @param {number} chunkCount
- * @returns {bigint[]}
- */
+// Read offset table for a layer
+// @param {BinaryReader} reader
+// @param {number} chunkCount
+// @returns {bigint[]}
 export function readOffsetTable(reader, chunkCount) {
   const offsets = [];
   for (let i = 0; i < chunkCount; i++) {

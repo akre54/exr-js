@@ -1,9 +1,6 @@
-/**
- * Platform-independent zlib wrapper
- *
- * Uses Node.js zlib in Node environments, pako in browsers.
- * Handles module loading properly to avoid browser compatibility issues.
- */
+// Platform-independent zlib wrapper
+// Uses Node.js zlib in Node environments, pako in browsers.
+// Handles module loading properly to avoid browser compatibility issues.
 
 import { isNode } from './platform.js';
 
@@ -22,12 +19,9 @@ if (isNode) {
   }
 }
 
-/**
- * Get the zlib implementation for the current environment.
- * Returns an object with deflate/inflate methods, or null if unavailable.
- *
- * @returns {{ deflate: (data: Uint8Array, level: number) => Uint8Array, inflate: (data: Uint8Array) => Uint8Array } | null}
- */
+// Get the zlib implementation for the current environment.
+// Returns an object with deflate/inflate methods, or null if unavailable.
+// @returns {{ deflate: (data: Uint8Array, level: number) => Uint8Array, inflate: (data: Uint8Array) => Uint8Array } | null}
 export function getZlib() {
   // Return cached Node.js zlib if available
   if (_zlib) return _zlib;

@@ -1,6 +1,4 @@
-/**
- * Tests for reading tiled EXR files
- */
+// Tests for reading tiled EXR files
 
 import { test, expect } from 'vitest';
 import { EXRReader, readRgbaFile } from '../src/index.js';

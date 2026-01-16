@@ -1,36 +1,28 @@
-/**
- * Block Reading - read and decompress pixel blocks from EXR files
- */
+// Block Reading - read and decompress pixel blocks from EXR files
 
 import { BinaryReader } from '../io/binary-reader.js';
 import { Vec2, bytesPerSample, SampleType } from '../core/types.js';
 import { decompressBlock } from '../compression/index.js';
 import { halfToFloat } from '../lib/half.js';
 
-/**
- * Read chunk info for a scanline block
- * @typedef {Object} ScanlineChunkInfo
- * @property {number} yCoordinate - Starting Y coordinate of the block
- * @property {number} dataSize - Size of compressed data in bytes
- * @property {Uint8Array} data - Compressed (or uncompressed) pixel data
- */
+// Read chunk info for a scanline block
+// @typedef {Object} ScanlineChunkInfo
+// @property {number} yCoordinate - Starting Y coordinate of the block
+// @property {number} dataSize - Size of compressed data in bytes
+// @property {Uint8Array} data - Compressed (or uncompressed) pixel data
 
-/**
- * Read chunk info for a tile
- * @typedef {Object} TileChunkInfo
- * @property {number} tileX - Tile X index
- * @property {number} tileY - Tile Y index
- * @property {number} levelX - Mip/rip level X
- * @property {number} levelY - Mip/rip level Y
- * @property {number} dataSize - Size of compressed data in bytes
- * @property {Uint8Array} data - Compressed (or uncompressed) pixel data
- */
+// Read chunk info for a tile
+// @typedef {Object} TileChunkInfo
+// @property {number} tileX - Tile X index
+// @property {number} tileY - Tile Y index
+// @property {number} levelX - Mip/rip level X
+// @property {number} levelY - Mip/rip level Y
+// @property {number} dataSize - Size of compressed data in bytes
+// @property {Uint8Array} data - Compressed (or uncompressed) pixel data
 
-/**
- * Read a scanline chunk from the reader
- * @param {BinaryReader} reader
- * @returns {ScanlineChunkInfo}
- */
+// Read a scanline chunk from the reader
+// @param {BinaryReader} reader
+// @returns {ScanlineChunkInfo}
 export function readScanlineChunk(reader) {
   const yCoordinate = reader.readI32();
   const dataSize = reader.readI32();
@@ -39,11 +31,9 @@ export function readScanlineChunk(reader) {
   return { yCoordinate, dataSize, data };
 }
 
-/**
- * Read a tile chunk from the reader
- * @param {BinaryReader} reader
- * @returns {TileChunkInfo}
- */
+// Read a tile chunk from the reader
+// @param {BinaryReader} reader
+// @returns {TileChunkInfo}
 export function readTileChunk(reader) {
   const tileX = reader.readI32();
   const tileY = reader.readI32();
@@ -55,25 +45,21 @@ export function readTileChunk(reader) {
   return { tileX, tileY, levelX, levelY, dataSize, data };
 }
 
-/**
- * Read a chunk from the reader (for multi-part files)
- * @param {BinaryReader} reader
- * @param {boolean} isTiled
- * @returns {{ partNumber: number, chunk: ScanlineChunkInfo | TileChunkInfo }}
- */
+// Read a chunk from the reader (for multi-part files)
+// @param {BinaryReader} reader
+// @param {boolean} isTiled
+// @returns {{ partNumber: number, chunk: ScanlineChunkInfo | TileChunkInfo }}
 export function readMultiPartChunk(reader, isTiled) {
   const partNumber = reader.readU32();
   const chunk = isTiled ? readTileChunk(reader) : readScanlineChunk(reader);
   return { partNumber, chunk };
 }
 
-/**
- * Build compression context from channel list
- * @param {import('../meta/attributes.js').ChannelList} channelList
- * @param {number} width - Block width in pixels
- * @param {number} height - Block height in scanlines
- * @returns {import('../compression/index.js').CompressionContext}
- */
+// Build compression context from channel list
+// @param {import('../meta/attributes.js').ChannelList} channelList
+// @param {number} width - Block width in pixels
+// @param {number} height - Block height in scanlines
+// @returns {import('../compression/index.js').CompressionContext}
 export function buildCompressionContext(channelList, width, height) {
   return {
     channels: channelList.list.map((ch) => ({
@@ -86,27 +72,23 @@ export function buildCompressionContext(channelList, width, height) {
   };
 }
 
-/**
- * Calculate expected uncompressed size for a block
- * @param {import('../meta/attributes.js').ChannelList} channelList
- * @param {number} width - Block width in pixels
- * @param {number} height - Block height in scanlines
- * @returns {number}
- */
+// Calculate expected uncompressed size for a block
+// @param {import('../meta/attributes.js').ChannelList} channelList
+// @param {number} width - Block width in pixels
+// @param {number} height - Block height in scanlines
+// @returns {number}
 export function calculateUncompressedSize(channelList, width, height) {
   const bytesPerPixel = channelList.bytesPerPixel;
   return width * height * bytesPerPixel;
 }
 
-/**
- * Decompress a chunk's data
- * @param {Uint8Array} compressedData
- * @param {number} compression - Compression method
- * @param {import('../meta/attributes.js').ChannelList} channelList
- * @param {number} width - Block width
- * @param {number} height - Block height
- * @returns {Uint8Array} - Decompressed data
- */
+// Decompress a chunk's data
+// @param {Uint8Array} compressedData
+// @param {number} compression - Compression method
+// @param {import('../meta/attributes.js').ChannelList} channelList
+// @param {number} width - Block width
+// @param {number} height - Block height
+// @returns {Uint8Array} - Decompressed data
 export function decompressChunkData(compressedData, compression, channelList, width, height) {
   const expectedSize = calculateUncompressedSize(channelList, width, height);
   const context = buildCompressionContext(channelList, width, height);
@@ -114,29 +96,23 @@ export function decompressChunkData(compressedData, compression, channelList, wi
   return decompressBlock(compression, compressedData, expectedSize, context);
 }
 
-/**
- * Reconstructed pixel data for a block
- * @typedef {Object} ReconstructedPixels
- * @property {Map<string, Float32Array|Uint32Array>} channels - Per-channel pixel data
- * @property {number} width - Block width
- * @property {number} height - Block height
- */
+// Reconstructed pixel data for a block
+// @typedef {Object} ReconstructedPixels
+// @property {Map<string, Float32Array|Uint32Array>} channels - Per-channel pixel data
+// @property {number} width - Block width
+// @property {number} height - Block height
 
-/**
- * Reconstruct pixel data from decompressed block data
- *
- * EXR block data format:
- * For each scanline in block:
- *   For each channel (in alphabetical order):
- *     For each pixel in scanline:
- *       Sample bytes (1-4 bytes depending on type)
- *
- * @param {Uint8Array} decompressedData
- * @param {import('../meta/attributes.js').ChannelList} channelList
- * @param {number} width - Block width in pixels
- * @param {number} height - Block height in scanlines
- * @returns {ReconstructedPixels}
- */
+// Reconstruct pixel data from decompressed block data
+// EXR block data format:
+// For each scanline in block:
+//   For each channel (in alphabetical order):
+//     For each pixel in scanline:
+//       Sample bytes (1-4 bytes depending on type)
+// @param {Uint8Array} decompressedData
+// @param {import('../meta/attributes.js').ChannelList} channelList
+// @param {number} width - Block width in pixels
+// @param {number} height - Block height in scanlines
+// @returns {ReconstructedPixels}
 export function reconstructBlockPixels(decompressedData, channelList, width, height) {
   const channels = new Map();
   const view = new DataView(decompressedData.buffer, decompressedData.byteOffset, decompressedData.byteLength);
@@ -186,15 +162,13 @@ export function reconstructBlockPixels(decompressedData, channelList, width, hei
   return { channels, width, height };
 }
 
-/**
- * Read all blocks for a layer into a single pixel buffer
- * @param {BinaryReader} reader
- * @param {import('../meta/read-header.js').ParsedHeader} header
- * @param {bigint[]} offsets - Chunk offsets
- * @param {boolean} isMultiPart
- * @param {number} layerIndex - Layer index for multi-part files
- * @returns {Map<string, Float32Array|Uint32Array>} - Per-channel pixel data for entire layer
- */
+// Read all blocks for a layer into a single pixel buffer
+// @param {BinaryReader} reader
+// @param {import('../meta/read-header.js').ParsedHeader} header
+// @param {bigint[]} offsets - Chunk offsets
+// @param {boolean} isMultiPart
+// @param {number} layerIndex - Layer index for multi-part files
+// @returns {Map<string, Float32Array|Uint32Array>} - Per-channel pixel data for entire layer
 export function readLayerPixels(reader, header, offsets, isMultiPart, layerIndex = 0) {
   const channelList = header.channels;
   const dataWindow = header.dataWindow;
@@ -279,13 +253,11 @@ export function readLayerPixels(reader, header, offsets, isMultiPart, layerIndex
   return outputChannels;
 }
 
-/**
- * Convert separate channel data to interleaved RGBA
- * @param {Map<string, Float32Array>} channels
- * @param {number} width
- * @param {number} height
- * @returns {Float32Array} - Interleaved RGBA data
- */
+// Convert separate channel data to interleaved RGBA
+// @param {Map<string, Float32Array>} channels
+// @param {number} width
+// @param {number} height
+// @returns {Float32Array} - Interleaved RGBA data
 export function channelsToRgba(channels, width, height) {
   const pixelCount = width * height;
   const rgba = new Float32Array(pixelCount * 4);
@@ -306,13 +278,11 @@ export function channelsToRgba(channels, width, height) {
   return rgba;
 }
 
-/**
- * Convert separate channel data to interleaved RGB
- * @param {Map<string, Float32Array>} channels
- * @param {number} width
- * @param {number} height
- * @returns {Float32Array} - Interleaved RGB data
- */
+// Convert separate channel data to interleaved RGB
+// @param {Map<string, Float32Array>} channels
+// @param {number} width
+// @param {number} height
+// @returns {Float32Array} - Interleaved RGB data
 export function channelsToRgb(channels, width, height) {
   const pixelCount = width * height;
   const rgb = new Float32Array(pixelCount * 3);

@@ -1,26 +1,19 @@
-/**
- * RLE (Run-Length Encoding) compression for EXR
- *
- * RLE compression produces slightly smaller files that can be read/written quickly.
- * Compressed size is usually 60-75% of uncompressed.
- * Works best for images with large flat areas (masks, abstract graphics).
- *
- * Format:
- * - Positive count (0-127): Repeat the next byte (count + 1) times
- * - Negative count (-1 to -127): Copy the next (-count) bytes literally
- */
+// RLE (Run-Length Encoding) compression for EXR
+// RLE compression produces slightly smaller files that can be read/written quickly.
+// Compressed size is usually 60-75% of uncompressed.
+// Works best for images with large flat areas (masks, abstract graphics).
+// Format:
+// - Positive count (0-127): Repeat the next byte (count + 1) times
+// - Negative count (-1 to -127): Copy the next (-count) bytes literally
 
 import { preprocessForCompression, postprocessAfterDecompression } from './optimize.js';
 
 const MIN_RUN_LENGTH = 3;
 const MAX_RUN_LENGTH = 127;
 
-/**
- * Compress data using RLE
- *
- * @param {Uint8Array} data - Uncompressed data (in native/little endian)
- * @returns {Uint8Array} - Compressed data
- */
+// Compress data using RLE
+// @param {Uint8Array} data - Uncompressed data (in native/little endian)
+// @returns {Uint8Array} - Compressed data
 export function compressRLE(data) {
   if (data.length === 0) {
     return new Uint8Array(0);
@@ -81,13 +74,10 @@ export function compressRLE(data) {
   return new Uint8Array(output);
 }
 
-/**
- * Decompress RLE data
- *
- * @param {Uint8Array} compressed - Compressed data
- * @param {number} expectedSize - Expected uncompressed size
- * @returns {Uint8Array} - Decompressed data
- */
+// Decompress RLE data
+// @param {Uint8Array} compressed - Compressed data
+// @param {number} expectedSize - Expected uncompressed size
+// @returns {Uint8Array} - Decompressed data
 export function decompressRLE(compressed, expectedSize) {
   const output = new Uint8Array(expectedSize);
   let inPos = 0;

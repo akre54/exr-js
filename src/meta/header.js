@@ -1,9 +1,6 @@
-/**
- * EXR Header
- *
- * Each layer in an EXR file has a header containing attributes.
- * Headers are written as a sequence of attributes followed by a null byte.
- */
+// EXR Header
+// Each layer in an EXR file has a header containing attributes.
+// Headers are written as a sequence of attributes followed by a null byte.
 
 import { BinaryWriter } from '../io/binary-writer.js';
 import {
@@ -33,13 +30,9 @@ import {
   writeInt,
 } from './attributes.js';
 
-/**
- * Image-level attributes shared across all layers
- */
+// Image-level attributes shared across all layers
 export class ImageAttributes {
-  /**
-   * @param {IntegerBounds} displayWindow
-   */
+  // @param {IntegerBounds} displayWindow
   constructor(displayWindow) {
     this.displayWindow = displayWindow;
     this.pixelAspect = 1.0;
@@ -48,19 +41,15 @@ export class ImageAttributes {
     this.custom = new Map();
   }
 
-  /**
-   * Create image attributes with display window matching a size
-   * @param {Vec2} size
-   * @returns {ImageAttributes}
-   */
+  // Create image attributes with display window matching a size
+// @param {Vec2} size
+// @returns {ImageAttributes}
   static withSize(size) {
     return new ImageAttributes(IntegerBounds.fromDimensions(size.x, size.y));
   }
 }
 
-/**
- * Layer-level attributes
- */
+// Layer-level attributes
 export class LayerAttributes {
   constructor() {
     this.layerName = null;
@@ -70,11 +59,9 @@ export class LayerAttributes {
     this.custom = new Map();
   }
 
-  /**
-   * Create layer attributes with a name
-   * @param {string} name
-   * @returns {LayerAttributes}
-   */
+  // Create layer attributes with a name
+// @param {string} name
+// @returns {LayerAttributes}
   static named(name) {
     const attrs = new LayerAttributes();
     attrs.layerName = name;
@@ -82,43 +69,39 @@ export class LayerAttributes {
   }
 }
 
-/**
- * Encoding settings for a layer
- */
+// Encoding settings for a layer
 export class Encoding {
-  /**
-   * @param {number} compression
-   * @param {Blocks} blocks
-   * @param {number} lineOrder
-   */
+  // @param {number} compression
+// @param {Blocks} blocks
+// @param {number} lineOrder
   constructor(compression, blocks, lineOrder) {
     this.compression = compression;
     this.blocks = blocks;
     this.lineOrder = lineOrder;
   }
 
-  /** Uncompressed scanlines */
+  // Uncompressed scanlines
   static UNCOMPRESSED = new Encoding(
     Compression.Uncompressed,
     Blocks.ScanLines,
     LineOrder.Increasing
   );
 
-  /** RLE compressed tiles - fast encoding, good compression */
+  // RLE compressed tiles - fast encoding, good compression
   static FAST_LOSSLESS = new Encoding(
     Compression.RLE,
     Blocks.Tiles(new Vec2(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE)),
     LineOrder.Unspecified
   );
 
-  /** ZIP16 compressed scanlines - smaller files */
+  // ZIP16 compressed scanlines - smaller files
   static SMALL_LOSSLESS = new Encoding(
     Compression.ZIP16,
     Blocks.ScanLines,
     LineOrder.Increasing
   );
 
-  /** PIZ compressed tiles - best for noisy images */
+  // PIZ compressed tiles - best for noisy images
   static SMALL_FAST_LOSSLESS = new Encoding(
     Compression.PIZ,
     Blocks.Tiles(new Vec2(256, 256)),
@@ -126,17 +109,13 @@ export class Encoding {
   );
 }
 
-/**
- * Header for a single layer
- */
+// Header for a single layer
 export class Header {
-  /**
-   * @param {Vec2} layerSize - Layer resolution
-   * @param {ChannelList} channels - Channel descriptions
-   * @param {Encoding} encoding - Compression and block settings
-   * @param {ImageAttributes} sharedAttributes - Image-level attributes
-   * @param {LayerAttributes} ownAttributes - Layer-level attributes
-   */
+  // @param {Vec2} layerSize - Layer resolution
+// @param {ChannelList} channels - Channel descriptions
+// @param {Encoding} encoding - Compression and block settings
+// @param {ImageAttributes} sharedAttributes - Image-level attributes
+// @param {LayerAttributes} ownAttributes - Layer-level attributes
   constructor(layerSize, channels, encoding, sharedAttributes, ownAttributes) {
     this.layerSize = layerSize;
     this.channels = channels;
@@ -145,18 +124,14 @@ export class Header {
     this.ownAttributes = ownAttributes;
   }
 
-  /**
-   * Get the data window bounds
-   * @returns {IntegerBounds}
-   */
+  // Get the data window bounds
+// @returns {IntegerBounds}
   get dataWindow() {
     return new IntegerBounds(this.ownAttributes.layerPosition, this.layerSize);
   }
 
-  /**
-   * Calculate the number of blocks/chunks in this layer
-   * @returns {number}
-   */
+  // Calculate the number of blocks/chunks in this layer
+// @returns {number}
   get chunkCount() {
     if (this.encoding.blocks.isTiled()) {
       return calculateTotalTileCount(this.layerSize, this.encoding.blocks);
@@ -167,19 +142,15 @@ export class Header {
     }
   }
 
-  /**
-   * Get the layer type string
-   * @returns {string}
-   */
+  // Get the layer type string
+// @returns {string}
   get layerType() {
     return this.encoding.blocks.isTiled() ? LayerType.TILED : LayerType.SCANLINE;
   }
 
-  /**
-   * Write this header to a writer
-   * @param {BinaryWriter} writer
-   * @param {boolean} isMultiPart - Whether this is a multi-part file
-   */
+  // Write this header to a writer
+// @param {BinaryWriter} writer
+// @param {boolean} isMultiPart - Whether this is a multi-part file
   write(writer, isMultiPart) {
     // Required attributes
     writeChannelList(writer, this.channels);
@@ -220,12 +191,10 @@ export class Header {
   }
 }
 
-/**
- * Write all headers to a writer
- * @param {BinaryWriter} writer
- * @param {Header[]} headers
- * @param {boolean} isMultiPart
- */
+// Write all headers to a writer
+// @param {BinaryWriter} writer
+// @param {Header[]} headers
+// @param {boolean} isMultiPart
 export function writeHeaders(writer, headers, isMultiPart) {
   for (const header of headers) {
     header.write(writer, isMultiPart);

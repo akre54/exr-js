@@ -1,6 +1,4 @@
-/**
- * Test writing multi-layer EXR files (render passes/AOVs)
- */
+// Test writing multi-layer EXR files (render passes/AOVs)
 
 import { test, expect } from 'vitest';
 import { Image, Layer, SpecificChannels, AnyChannels, AnyChannel, FlatSamples, Encoding, Vec2, Compression, Blocks, LineOrder, IntegerBounds, ImageAttributes, LayerAttributes, SampleType } from '../src/index.js';

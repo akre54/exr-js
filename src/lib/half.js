@@ -1,20 +1,15 @@
-/**
- * IEEE 754 Half-precision (16-bit) floating point conversion
- *
- * Format: 1 sign bit, 5 exponent bits, 10 mantissa bits
- * Bias: 15
- * Range: ~6.1e-5 to 65504
- */
+// IEEE 754 Half-precision (16-bit) floating point conversion
+// Format: 1 sign bit, 5 exponent bits, 10 mantissa bits
+// Bias: 15
+// Range: ~6.1e-5 to 65504
 
 // Reusable typed arrays for bit manipulation
 const f32View = new Float32Array(1);
 const u32View = new Uint32Array(f32View.buffer);
 
-/**
- * Convert 32-bit float to 16-bit half-precision
- * @param {number} value - 32-bit float
- * @returns {number} - 16-bit half-precision as unsigned integer
- */
+// Convert 32-bit float to 16-bit half-precision
+// @param {number} value - 32-bit float
+// @returns {number} - 16-bit half-precision as unsigned integer
 export function floatToHalf(value) {
   f32View[0] = value;
   const bits = u32View[0];
@@ -65,11 +60,9 @@ export function floatToHalf(value) {
   return sign | (newExp << 10) | (mantissa >>> 13);
 }
 
-/**
- * Convert 32-bit float to 16-bit half-precision with rounding
- * @param {number} value - 32-bit float
- * @returns {number} - 16-bit half-precision as unsigned integer
- */
+// Convert 32-bit float to 16-bit half-precision with rounding
+// @param {number} value - 32-bit float
+// @returns {number} - 16-bit half-precision as unsigned integer
 export function floatToHalfRounded(value) {
   f32View[0] = value;
   const bits = u32View[0];
@@ -117,11 +110,9 @@ export function floatToHalfRounded(value) {
   return sign | (newExp << 10) | truncatedMantissa;
 }
 
-/**
- * Convert 16-bit half-precision to 32-bit float
- * @param {number} half - 16-bit half-precision as unsigned integer
- * @returns {number} - 32-bit float
- */
+// Convert 16-bit half-precision to 32-bit float
+// @param {number} half - 16-bit half-precision as unsigned integer
+// @returns {number} - 32-bit float
 export function halfToFloat(half) {
   const sign = (half & 0x8000) >>> 15;
   const exp = (half & 0x7c00) >>> 10;
@@ -162,22 +153,18 @@ export function halfToFloat(half) {
   return f32View[0];
 }
 
-/**
- * Check if a value can be represented exactly in half-precision
- * @param {number} value - 32-bit float
- * @returns {boolean}
- */
+// Check if a value can be represented exactly in half-precision
+// @param {number} value - 32-bit float
+// @returns {boolean}
 export function isExactHalf(value) {
   const half = floatToHalf(value);
   const back = halfToFloat(half);
   return Object.is(value, back);
 }
 
-/**
- * Clamp a value to the half-precision representable range
- * @param {number} value
- * @returns {number}
- */
+// Clamp a value to the half-precision representable range
+// @param {number} value
+// @returns {number}
 export function clampToHalfRange(value) {
   if (Number.isNaN(value)) return value;
   if (value > 65504) return 65504;
@@ -189,11 +176,9 @@ export function clampToHalfRange(value) {
   return value;
 }
 
-/**
- * Convert a Float32Array to half-precision Uint16Array
- * @param {Float32Array} floats
- * @returns {Uint16Array}
- */
+// Convert a Float32Array to half-precision Uint16Array
+// @param {Float32Array} floats
+// @returns {Uint16Array}
 export function float32ArrayToHalf(floats) {
   const result = new Uint16Array(floats.length);
   for (let i = 0; i < floats.length; i++) {
@@ -202,11 +187,9 @@ export function float32ArrayToHalf(floats) {
   return result;
 }
 
-/**
- * Convert a half-precision Uint16Array to Float32Array
- * @param {Uint16Array} halves
- * @returns {Float32Array}
- */
+// Convert a half-precision Uint16Array to Float32Array
+// @param {Uint16Array} halves
+// @returns {Float32Array}
 export function halfToFloat32Array(halves) {
   const result = new Float32Array(halves.length);
   for (let i = 0; i < halves.length; i++) {

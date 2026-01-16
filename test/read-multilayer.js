@@ -1,6 +1,4 @@
-/**
- * Tests for reading multi-layer EXR files
- */
+// Tests for reading multi-layer EXR files
 
 import { test, expect } from 'vitest';
 import { EXRReader } from '../src/index.js';

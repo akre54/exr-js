@@ -1,6 +1,4 @@
-/**
- * Roundtrip tests - write then read, verify pixel values match
- */
+// Roundtrip tests - write then read, verify pixel values match
 
 import { test, expect } from 'vitest';
 import { writeRgbaFile, readRgbaFile, writeRgbFile, readRgbFile, Encoding, Compression, Blocks, LineOrder } from '../src/index.js';

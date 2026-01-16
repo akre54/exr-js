@@ -1,31 +1,27 @@
-/**
- * Platform detection and cross-platform utilities
- */
+// Platform detection and cross-platform utilities
 
-/** Detect Node.js environment */
+// Detect Node.js environment
 export const isNode =
   typeof process !== 'undefined' &&
   process.versions != null &&
   process.versions.node != null;
 
-/** Detect browser environment */
+// Detect browser environment
 export const isBrowser =
   typeof window !== 'undefined' && typeof document !== 'undefined';
 
-/** Detect Web Worker environment */
+// Detect Web Worker environment
 export const isWebWorker =
   typeof self !== 'undefined' &&
   typeof self.postMessage === 'function' &&
   !isBrowser;
 
-/**
- * Write ArrayBuffer to file
- * - Node.js: Writes to filesystem
- * - Browser: Triggers download
- * @param {ArrayBuffer} buffer
- * @param {string} filename
- * @returns {Promise<void>}
- */
+// Write ArrayBuffer to file
+// - Node.js: Writes to filesystem
+// - Browser: Triggers download
+// @param {ArrayBuffer} buffer
+// @param {string} filename
+// @returns {Promise<void>}
 export async function writeToFile(buffer, filename) {
   if (isNode) {
     const fs = await import('fs/promises');
@@ -37,11 +33,9 @@ export async function writeToFile(buffer, filename) {
   }
 }
 
-/**
- * Trigger a browser download
- * @param {ArrayBuffer} buffer
- * @param {string} filename
- */
+// Trigger a browser download
+// @param {ArrayBuffer} buffer
+// @param {string} filename
 function downloadBlob(buffer, filename) {
   const blob = new Blob([buffer], { type: 'application/octet-stream' });
   const url = URL.createObjectURL(blob);
@@ -60,26 +54,22 @@ function downloadBlob(buffer, filename) {
   }, 100);
 }
 
-/**
- * Get the native endianness of the platform
- * @returns {'little' | 'big'}
- */
+// Get the native endianness of the platform
+// @returns {'little' | 'big'}
 export function getNativeEndianness() {
   const buffer = new ArrayBuffer(2);
   new DataView(buffer).setInt16(0, 256, true);
   return new Int16Array(buffer)[0] === 256 ? 'little' : 'big';
 }
 
-/** True if native byte order is little-endian */
+// True if native byte order is little-endian
 export const isLittleEndian = getNativeEndianness() === 'little';
 
-/**
- * Read file to ArrayBuffer
- * - Node.js: Reads from filesystem
- * - Browser: Not directly supported (use fetch or FileReader)
- * @param {string} filename
- * @returns {Promise<ArrayBuffer>}
- */
+// Read file to ArrayBuffer
+// - Node.js: Reads from filesystem
+// - Browser: Not directly supported (use fetch or FileReader)
+// @param {string} filename
+// @returns {Promise<ArrayBuffer>}
 export async function readFromFile(filename) {
   if (isNode) {
     const fs = await import('fs/promises');

@@ -1,20 +1,14 @@
-/**
- * Block module - pixel block management and chunk writing
- */
+// Block module - pixel block management and chunk writing
 
 import { BinaryWriter } from '../io/binary-writer.js';
 import { Vec2, scanLinesPerBlock, getLevelCounts, getLevelSize, LevelMode } from '../core/types.js';
 
-/**
- * Index identifying a specific block in the image
- */
+// Index identifying a specific block in the image
 export class BlockIndex {
-  /**
-   * @param {number} layer - Layer index
-   * @param {Vec2} pixelPosition - Top-left pixel position
-   * @param {Vec2} pixelSize - Block dimensions
-   * @param {Vec2} levelIndex - Mip/rip level index (0,0 for base level)
-   */
+  // @param {number} layer - Layer index
+// @param {Vec2} pixelPosition - Top-left pixel position
+// @param {Vec2} pixelSize - Block dimensions
+// @param {Vec2} levelIndex - Mip/rip level index (0,0 for base level)
   constructor(layer, pixelPosition, pixelSize, levelIndex = new Vec2(0, 0)) {
     this.layer = layer;
     this.pixelPosition = pixelPosition;
@@ -23,32 +17,24 @@ export class BlockIndex {
   }
 }
 
-/**
- * Uncompressed pixel block data
- */
+// Uncompressed pixel block data
 export class UncompressedBlock {
-  /**
-   * @param {BlockIndex} index
-   * @param {Uint8Array} data - Uncompressed pixel data
-   */
+  // @param {BlockIndex} index
+// @param {Uint8Array} data - Uncompressed pixel data
   constructor(index, data) {
     this.index = index;
     this.data = data;
   }
 }
 
-/**
- * Compressed chunk ready for writing
- */
+// Compressed chunk ready for writing
 export class Chunk {
-  /**
-   * @param {number} layer - Layer index
-   * @param {Uint8Array} data - Compressed data (or uncompressed if compression didn't help)
-   * @param {boolean} isTile - Whether this is a tile (vs scanline block)
-   * @param {Vec2|null} tileCoordinates - Tile x,y index (for tiles)
-   * @param {Vec2|null} levelIndex - Mip/rip level (for tiles)
-   * @param {number|null} yCoordinate - Scanline y coordinate (for scanlines)
-   */
+  // @param {number} layer - Layer index
+// @param {Uint8Array} data - Compressed data (or uncompressed if compression didn't help)
+// @param {boolean} isTile - Whether this is a tile (vs scanline block)
+// @param {Vec2|null} tileCoordinates - Tile x,y index (for tiles)
+// @param {Vec2|null} levelIndex - Mip/rip level (for tiles)
+// @param {number|null} yCoordinate - Scanline y coordinate (for scanlines)
   constructor(layer, data, isTile, tileCoordinates = null, levelIndex = null, yCoordinate = null) {
     this.layer = layer;
     this.data = data;
@@ -58,28 +44,22 @@ export class Chunk {
     this.yCoordinate = yCoordinate;
   }
 
-  /**
-   * Write this chunk to a writer (for multi-part files)
-   * @param {BinaryWriter} writer
-   */
+  // Write this chunk to a writer (for multi-part files)
+// @param {BinaryWriter} writer
   writeMultiPart(writer) {
     // Part number (u32)
     writer.writeU32(this.layer);
     this._writeData(writer);
   }
 
-  /**
-   * Write this chunk to a writer (for single-part files)
-   * @param {BinaryWriter} writer
-   */
+  // Write this chunk to a writer (for single-part files)
+// @param {BinaryWriter} writer
   writeSinglePart(writer) {
     this._writeData(writer);
   }
 
-  /**
-   * Write the chunk data
-   * @param {BinaryWriter} writer
-   */
+  // Write the chunk data
+// @param {BinaryWriter} writer
   _writeData(writer) {
     if (this.isTile) {
       // Tile coordinates
@@ -99,10 +79,8 @@ export class Chunk {
     }
   }
 
-  /**
-   * Total byte size of this chunk when written
-   * @returns {number}
-   */
+  // Total byte size of this chunk when written
+// @returns {number}
   get byteSize() {
     if (this.isTile) {
       // 4 ints for coordinates + 1 int for size + data
@@ -114,15 +92,13 @@ export class Chunk {
   }
 }
 
-/**
- * Generate block indices for a layer (single level)
- * @param {number} layerIndex
- * @param {Vec2} levelSize - Size of this level
- * @param {import('../core/types.js').Blocks} blocks
- * @param {number} compression
- * @param {Vec2} levelIndex - Level index (for mip/rip maps)
- * @returns {BlockIndex[]}
- */
+// Generate block indices for a layer (single level)
+// @param {number} layerIndex
+// @param {Vec2} levelSize - Size of this level
+// @param {import('../core/types.js').Blocks} blocks
+// @param {number} compression
+// @param {Vec2} levelIndex - Level index (for mip/rip maps)
+// @returns {BlockIndex[]}
 function generateBlockIndicesForLevel(layerIndex, levelSize, blocks, compression, levelIndex) {
   const indices = [];
 
@@ -164,14 +140,12 @@ function generateBlockIndicesForLevel(layerIndex, levelSize, blocks, compression
   return indices;
 }
 
-/**
- * Generate block indices for a layer (all levels)
- * @param {number} layerIndex
- * @param {Vec2} layerSize
- * @param {import('../core/types.js').Blocks} blocks
- * @param {number} compression
- * @returns {BlockIndex[]}
- */
+// Generate block indices for a layer (all levels)
+// @param {number} layerIndex
+// @param {Vec2} layerSize
+// @param {import('../core/types.js').Blocks} blocks
+// @param {number} compression
+// @returns {BlockIndex[]}
 export function generateBlockIndices(layerIndex, layerSize, blocks, compression) {
   const indices = [];
   const levelCounts = getLevelCounts(layerSize, blocks.levelMode);
@@ -208,12 +182,10 @@ export function generateBlockIndices(layerIndex, layerSize, blocks, compression)
   return indices;
 }
 
-/**
- * Calculate total tile count for all levels
- * @param {Vec2} layerSize - Full resolution size
- * @param {import('../core/types.js').Blocks} blocks
- * @returns {number}
- */
+// Calculate total tile count for all levels
+// @param {Vec2} layerSize - Full resolution size
+// @param {import('../core/types.js').Blocks} blocks
+// @returns {number}
 export function calculateTotalTileCount(layerSize, blocks) {
   const tileSize = blocks.tileSize;
   const levelCounts = getLevelCounts(layerSize, blocks.levelMode);
@@ -246,13 +218,11 @@ export function calculateTotalTileCount(layerSize, blocks) {
   return totalTiles;
 }
 
-/**
- * Extract pixel data for a block from layer data
- * @param {BlockIndex} blockIndex
- * @param {import('../image/channels.js').WritableChannels} channels
- * @param {Vec2} layerSize
- * @returns {Uint8Array}
- */
+// Extract pixel data for a block from layer data
+// @param {BlockIndex} blockIndex
+// @param {import('../image/channels.js').WritableChannels} channels
+// @param {Vec2} layerSize
+// @returns {Uint8Array}
 export function extractBlockData(blockIndex, channels, layerSize) {
   const { pixelPosition, pixelSize } = blockIndex;
   const channelList = channels.getChannelList();

@@ -1,15 +1,12 @@
-/**
- * Compression module - EXR compression methods
- *
- * Supported compression methods:
- * - Uncompressed: No compression, fastest I/O
- * - RLE: Run-length encoding, fast with moderate compression
- * - ZIP1: zlib per scanline, slow but small
- * - ZIP16: zlib per 16 scanlines, better compression than ZIP1
- * - PIZ: Wavelet + Huffman, best for noisy images
- * - PXR24: Lossy for f32, lossless for f16/u32
- * - B44/B44A: Lossy block compression for f16
- */
+// Compression module - EXR compression methods
+// Supported compression methods:
+// - Uncompressed: No compression, fastest I/O
+// - RLE: Run-length encoding, fast with moderate compression
+// - ZIP1: zlib per scanline, slow but small
+// - ZIP16: zlib per 16 scanlines, better compression than ZIP1
+// - PIZ: Wavelet + Huffman, best for noisy images
+// - PXR24: Lossy for f32, lossless for f16/u32
+// - B44/B44A: Lossy block compression for f16
 
 import { Compression } from '../core/types.js';
 import { compressRLE, decompressRLE } from './rle.js';
@@ -25,22 +22,17 @@ export { compressPIZ, decompressPIZ } from './piz/index.js';
 export { compressB44, decompressB44 } from './b44/index.js';
 export * from './optimize.js';
 
-/**
- * Compression context for channel-aware compression methods
- * @typedef {Object} CompressionContext
- * @property {Array<{name: string, sampleType: number}>} channels - Channel list
- * @property {number} width - Block width in pixels
- * @property {number} height - Block height in scanlines
- */
+// Compression context for channel-aware compression methods
+// @typedef {Object} CompressionContext
+// @property {Array<{name: string, sampleType: number}>} channels - Channel list
+// @property {number} width - Block width in pixels
+// @property {number} height - Block height in scanlines
 
-/**
- * Compress a block of pixel data
- *
- * @param {number} method - Compression method (from Compression enum)
- * @param {Uint8Array} uncompressedLE - Little-endian uncompressed data
- * @param {CompressionContext} [context] - Optional context for channel-aware compression
- * @returns {Uint8Array} - Compressed data (or uncompressed if compression didn't help)
- */
+// Compress a block of pixel data
+// @param {number} method - Compression method (from Compression enum)
+// @param {Uint8Array} uncompressedLE - Little-endian uncompressed data
+// @param {CompressionContext} [context] - Optional context for channel-aware compression
+// @returns {Uint8Array} - Compressed data (or uncompressed if compression didn't help)
 export function compressBlock(method, uncompressedLE, context = null) {
   if (uncompressedLE.length === 0) {
     return uncompressedLE;
@@ -124,15 +116,12 @@ export function compressBlock(method, uncompressedLE, context = null) {
   return compressed;
 }
 
-/**
- * Decompress a block of pixel data
- *
- * @param {number} method - Compression method
- * @param {Uint8Array} compressedLE - Compressed data (little-endian)
- * @param {number} expectedSize - Expected uncompressed size
- * @param {CompressionContext} [context] - Optional context for channel-aware decompression
- * @returns {Uint8Array} - Decompressed data
- */
+// Decompress a block of pixel data
+// @param {number} method - Compression method
+// @param {Uint8Array} compressedLE - Compressed data (little-endian)
+// @param {number} expectedSize - Expected uncompressed size
+// @param {CompressionContext} [context] - Optional context for channel-aware decompression
+// @returns {Uint8Array} - Decompressed data
 export function decompressBlock(method, compressedLE, expectedSize, context = null) {
   // If the compressed size equals expected size, data was stored uncompressed
   if (compressedLE.length === expectedSize) {
@@ -174,11 +163,9 @@ export function decompressBlock(method, compressedLE, expectedSize, context = nu
   }
 }
 
-/**
- * Get the name of a compression method
- * @param {number} method
- * @returns {string}
- */
+// Get the name of a compression method
+// @param {number} method
+// @returns {string}
 export function compressionName(method) {
   switch (method) {
     case Compression.Uncompressed:

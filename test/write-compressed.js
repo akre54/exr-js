@@ -1,6 +1,4 @@
-/**
- * Test writing EXR files with different compression methods
- */
+// Test writing EXR files with different compression methods
 
 import { test, expect } from 'vitest';
 import { Image, Layer, SpecificChannels, Encoding, Vec2, Compression, Blocks, LineOrder } from '../src/index.js';

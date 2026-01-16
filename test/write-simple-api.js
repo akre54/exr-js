@@ -1,6 +1,4 @@
-/**
- * Test the simple writeRgbaFile/writeRgbFile API
- */
+// Test the simple writeRgbaFile/writeRgbFile API
 
 import { test, expect } from 'vitest';
 import { writeRgbaFile, writeRgbFile, Compression, Encoding, Blocks, Vec2, LineOrder } from '../src/index.js';

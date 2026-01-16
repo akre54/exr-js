@@ -1,32 +1,30 @@
-/**
- * EXR file format constants
- */
+// EXR file format constants
 
-/** Magic number identifying an EXR file */
+// Magic number identifying an EXR file
 export const MAGIC_NUMBER = 0x01312f76; // Little-endian: 0x76, 0x2f, 0x31, 0x01
 
-/** Current EXR version */
+// Current EXR version
 export const EXR_VERSION = 2;
 
-/** Version flags */
+// Version flags
 export const VersionFlags = Object.freeze({
-  /** Single-part tiled image */
+  // Single-part tiled image
   TILED: 1 << 9,
-  /** Attribute or channel names longer than 31 characters */
+  // Attribute or channel names longer than 31 characters
   LONG_NAMES: 1 << 10,
-  /** Deep data (not yet supported) */
+  // Deep data (not yet supported)
   DEEP_DATA: 1 << 11,
-  /** Multi-part file */
+  // Multi-part file
   MULTI_PART: 1 << 12,
 });
 
-/** Maximum attribute name/value length without LONG_NAMES flag */
+// Maximum attribute name/value length without LONG_NAMES flag
 export const MAX_SHORT_NAME_LENGTH = 31;
 
-/** Maximum attribute name/value length with LONG_NAMES flag */
+// Maximum attribute name/value length with LONG_NAMES flag
 export const MAX_LONG_NAME_LENGTH = 255;
 
-/** Attribute type names as written in the file */
+// Attribute type names as written in the file
 export const AttributeType = Object.freeze({
   BOX2I: 'box2i',
   BOX2F: 'box2f',
@@ -53,7 +51,7 @@ export const AttributeType = Object.freeze({
   V3F: 'v3f',
 });
 
-/** Required header attributes */
+// Required header attributes
 export const RequiredAttributes = Object.freeze([
   'channels',
   'compression',
@@ -65,13 +63,13 @@ export const RequiredAttributes = Object.freeze([
   'screenWindowWidth',
 ]);
 
-/** Additional required attributes for tiled images */
+// Additional required attributes for tiled images
 export const TiledAttributes = Object.freeze(['tiles']);
 
-/** Additional required attributes for multi-part files */
+// Additional required attributes for multi-part files
 export const MultiPartAttributes = Object.freeze(['name', 'type']);
 
-/** Layer type identifiers */
+// Layer type identifiers
 export const LayerType = Object.freeze({
   SCANLINE: 'scanlineimage',
   TILED: 'tiledimage',
@@ -79,10 +77,10 @@ export const LayerType = Object.freeze({
   DEEP_TILED: 'deeptile',
 });
 
-/** Default tile size */
+// Default tile size
 export const DEFAULT_TILE_SIZE = 64;
 
-/** Compression IDs as written in the file */
+// Compression IDs as written in the file
 export const CompressionId = Object.freeze({
   NO_COMPRESSION: 0,
   RLE_COMPRESSION: 1,

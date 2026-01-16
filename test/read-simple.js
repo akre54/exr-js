@@ -1,6 +1,4 @@
-/**
- * Simple tests for reading EXR files
- */
+// Simple tests for reading EXR files
 
 import { test, expect } from 'vitest';
 import { readRgbaFile, readRgbFile, EXRReader } from '../src/index.js';

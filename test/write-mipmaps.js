@@ -1,6 +1,4 @@
-/**
- * Test writing EXR files with mip maps
- */
+// Test writing EXR files with mip maps
 
 import { test, expect } from 'vitest';
 import { Image, Layer, SpecificChannels, Encoding, Vec2, Compression, Blocks, LineOrder, LevelMode, RoundingMode } from '../src/index.js';

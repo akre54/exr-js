@@ -1,6 +1,4 @@
-/**
- * Tests for reading EXR files with various compression methods
- */
+// Tests for reading EXR files with various compression methods
 
 import { test, expect } from 'vitest';
 import { readRgbaFile, EXRReader, Compression } from '../src/index.js';

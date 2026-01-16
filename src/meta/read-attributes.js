@@ -1,19 +1,14 @@
-/**
- * EXR Attribute Reading
- *
- * Parse attributes from EXR headers.
- * Each attribute has: name (null-terminated), type (null-terminated), size (i32), value (bytes)
- */
+// EXR Attribute Reading
+// Parse attributes from EXR headers.
+// Each attribute has: name (null-terminated), type (null-terminated), size (i32), value (bytes)
 
 import { Vec2, IntegerBounds, SampleType, LevelMode, RoundingMode } from '../core/types.js';
 import { AttributeType } from '../core/constants.js';
 import { ChannelDescription, ChannelList } from './attributes.js';
 
-/**
- * Read a single attribute from the reader
- * @param {import('../io/binary-reader.js').BinaryReader} reader
- * @returns {{ name: string, type: string, size: number, value: any } | null} - null if header end
- */
+// Read a single attribute from the reader
+// @param {import('../io/binary-reader.js').BinaryReader} reader
+// @returns {{ name: string, type: string, size: number, value: any } | null} - null if header end
 export function readAttribute(reader) {
   // Check for header end (null byte as name)
   if (reader.peekU8() === 0) {
@@ -34,13 +29,11 @@ export function readAttribute(reader) {
   return { name, type, size, value };
 }
 
-/**
- * Parse an attribute value based on its type
- * @param {string} type - Attribute type name
- * @param {Uint8Array} bytes - Raw value bytes
- * @param {number} size - Size in bytes
- * @returns {any}
- */
+// Parse an attribute value based on its type
+// @param {string} type - Attribute type name
+// @param {Uint8Array} bytes - Raw value bytes
+// @param {number} size - Size in bytes
+// @returns {any}
 function parseAttributeValue(type, bytes, size) {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
 
@@ -181,11 +174,9 @@ function parseAttributeValue(type, bytes, size) {
   }
 }
 
-/**
- * Read box2i from DataView
- * @param {DataView} view
- * @returns {IntegerBounds}
- */
+// Read box2i from DataView
+// @param {DataView} view
+// @returns {IntegerBounds}
 function readBox2iFromView(view) {
   const xMin = view.getInt32(0, true);
   const yMin = view.getInt32(4, true);
@@ -196,11 +187,9 @@ function readBox2iFromView(view) {
   return new IntegerBounds(new Vec2(xMin, yMin), new Vec2(xMax - xMin + 1, yMax - yMin + 1));
 }
 
-/**
- * Read tile description from DataView
- * @param {DataView} view
- * @returns {{ tileSize: Vec2, levelMode: number, roundingMode: number }}
- */
+// Read tile description from DataView
+// @param {DataView} view
+// @returns {{ tileSize: Vec2, levelMode: number, roundingMode: number }}
 function readTileDescFromView(view) {
   const tileWidth = view.getUint32(0, true);
   const tileHeight = view.getUint32(4, true);
@@ -213,11 +202,9 @@ function readTileDescFromView(view) {
   };
 }
 
-/**
- * Read channel list from bytes
- * @param {Uint8Array} bytes
- * @returns {ChannelList}
- */
+// Read channel list from bytes
+// @param {Uint8Array} bytes
+// @returns {ChannelList}
 function readChannelListFromBytes(bytes) {
   const channels = [];
   let offset = 0;
@@ -267,12 +254,10 @@ function readChannelListFromBytes(bytes) {
   return new ChannelList(channels);
 }
 
-/**
- * Read matrix from DataView
- * @param {DataView} view
- * @param {number} count - Number of floats (9 for 3x3, 16 for 4x4)
- * @returns {Float32Array}
- */
+// Read matrix from DataView
+// @param {DataView} view
+// @param {number} count - Number of floats (9 for 3x3, 16 for 4x4)
+// @returns {Float32Array}
 function readMatrix(view, count) {
   const matrix = new Float32Array(count);
   for (let i = 0; i < count; i++) {
@@ -281,11 +266,9 @@ function readMatrix(view, count) {
   return matrix;
 }
 
-/**
- * Read string vector from bytes
- * @param {Uint8Array} bytes
- * @returns {string[]}
- */
+// Read string vector from bytes
+// @param {Uint8Array} bytes
+// @returns {string[]}
 function readStringVector(bytes) {
   const strings = [];
   let offset = 0;
@@ -305,11 +288,9 @@ function readStringVector(bytes) {
   return strings;
 }
 
-/**
- * Map pixel type ID to sample type string
- * @param {number} pixelTypeId
- * @returns {string}
- */
+// Map pixel type ID to sample type string
+// @param {number} pixelTypeId
+// @returns {string}
 export function pixelTypeIdToSampleType(pixelTypeId) {
   switch (pixelTypeId) {
     case 0:
@@ -323,11 +304,9 @@ export function pixelTypeIdToSampleType(pixelTypeId) {
   }
 }
 
-/**
- * Map sample type string to pixel type ID
- * @param {string} sampleType
- * @returns {number}
- */
+// Map sample type string to pixel type ID
+// @param {string} sampleType
+// @returns {number}
 export function sampleTypeToPixelTypeId(sampleType) {
   switch (sampleType) {
     case SampleType.U32:

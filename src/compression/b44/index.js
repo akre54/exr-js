@@ -1,14 +1,10 @@
-/**
- * B44/B44A compression for EXR
- *
- * B44 is a lossy compression method for f16 channels only.
- * - Compresses 4x4 pixel blocks of f16 data to 14 bytes (from 32 bytes)
- * - f32 and u32 channels are stored uncompressed
- * - B44A variant compresses uniform blocks to 3 bytes
- *
- * Fast enough for real-time playback. File size is predictable
- * (depends only on resolution, not content).
- */
+// B44/B44A compression for EXR
+// B44 is a lossy compression method for f16 channels only.
+// - Compresses 4x4 pixel blocks of f16 data to 14 bytes (from 32 bytes)
+// - f32 and u32 channels are stored uncompressed
+// - B44A variant compresses uniform blocks to 3 bytes
+// Fast enough for real-time playback. File size is predictable
+// (depends only on resolution, not content).
 
 import { SampleType } from '../../core/types.js';
 
@@ -16,12 +12,10 @@ const BLOCK_SAMPLE_COUNT = 4;
 const BIAS = 0x20;
 const SIX_BITS = 0x3f;
 
-/**
- * Shift and round a value
- * @param {number} x
- * @param {number} shift
- * @returns {number}
- */
+// Shift and round a value
+// @param {number} x
+// @param {number} shift
+// @returns {number}
 function shiftAndRound(x, shift) {
   const x2 = x << 1;
   const a = (1 << shift) - 1;
@@ -30,13 +24,11 @@ function shiftAndRound(x, shift) {
   return (x2 + a + b) >> shiftPlus1;
 }
 
-/**
- * Pack a 4x4 block of 16-bit pixels into 14 or 3 bytes
- * @param {Uint16Array} s - 16 pixel values
- * @param {Uint8Array} b - Output buffer (at least 14 bytes)
- * @param {boolean} optimizeFlatFields - Use 3-byte encoding for flat blocks
- * @returns {number} - Number of bytes written (3 or 14)
- */
+// Pack a 4x4 block of 16-bit pixels into 14 or 3 bytes
+// @param {Uint16Array} s - 16 pixel values
+// @param {Uint8Array} b - Output buffer (at least 14 bytes)
+// @param {boolean} optimizeFlatFields - Use 3-byte encoding for flat blocks
+// @returns {number} - Number of bytes written (3 or 14)
 function pack(s, b, optimizeFlatFields) {
   const t = new Uint16Array(16);
 
@@ -134,11 +126,9 @@ function pack(s, b, optimizeFlatFields) {
   return 14;
 }
 
-/**
- * Unpack a 14-byte block into 4x4 16-bit pixels
- * @param {Uint8Array} b - 14 input bytes
- * @param {Uint16Array} s - 16 output pixels
- */
+// Unpack a 14-byte block into 4x4 16-bit pixels
+// @param {Uint8Array} b - 14 input bytes
+// @param {Uint16Array} s - 16 output pixels
 function unpack14(b, s) {
   s[0] = (b[0] << 8) | b[1];
 
@@ -174,11 +164,9 @@ function unpack14(b, s) {
   }
 }
 
-/**
- * Unpack a 3-byte flat block into 4x4 identical pixels
- * @param {Uint8Array} b - 3 input bytes
- * @param {Uint16Array} s - 16 output pixels
- */
+// Unpack a 3-byte flat block into 4x4 identical pixels
+// @param {Uint8Array} b - 3 input bytes
+// @param {Uint16Array} s - 16 output pixels
 function unpack3(b, s) {
   let value = (b[0] << 8) | b[1];
 
@@ -192,16 +180,13 @@ function unpack3(b, s) {
   s.fill(value);
 }
 
-/**
- * Compress data using B44/B44A
- *
- * @param {Uint8Array} data - Uncompressed pixel data (little-endian)
- * @param {Array<{name: string, sampleType: number}>} channels - Channel descriptions
- * @param {number} width - Block width
- * @param {number} height - Block height
- * @param {boolean} optimizeFlatFields - Use B44A (3-byte encoding for flat blocks)
- * @returns {Uint8Array} - Compressed data
- */
+// Compress data using B44/B44A
+// @param {Uint8Array} data - Uncompressed pixel data (little-endian)
+// @param {Array<{name: string, sampleType: number}>} channels - Channel descriptions
+// @param {number} width - Block width
+// @param {number} height - Block height
+// @param {boolean} optimizeFlatFields - Use B44A (3-byte encoding for flat blocks)
+// @returns {Uint8Array} - Compressed data
 export function compressB44(data, channels, width, height, optimizeFlatFields = false) {
   if (data.length === 0) {
     return new Uint8Array(0);
@@ -321,16 +306,13 @@ export function compressB44(data, channels, width, height, optimizeFlatFields = 
   return new Uint8Array(output);
 }
 
-/**
- * Decompress B44/B44A data
- *
- * @param {Uint8Array} compressed - Compressed data
- * @param {Array<{name: string, sampleType: number}>} channels - Channel descriptions
- * @param {number} width - Block width
- * @param {number} height - Block height
- * @param {number} expectedSize - Expected uncompressed size in bytes
- * @returns {Uint8Array} - Decompressed data
- */
+// Decompress B44/B44A data
+// @param {Uint8Array} compressed - Compressed data
+// @param {Array<{name: string, sampleType: number}>} channels - Channel descriptions
+// @param {number} width - Block width
+// @param {number} height - Block height
+// @param {number} expectedSize - Expected uncompressed size in bytes
+// @returns {Uint8Array} - Decompressed data
 export function decompressB44(compressed, channels, width, height, expectedSize) {
   if (compressed.length === 0) {
     return new Uint8Array(0);
