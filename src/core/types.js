@@ -2,51 +2,36 @@
 
 // 2D vector for coordinates and dimensions
 export class Vec2 {
-  // @param {number} x
-  // @param {number} y
   constructor(x, y) {
     this.x = x;
     this.y = y;
   }
 
-  // @returns {number}
   area() {
     return this.x * this.y;
   }
 
   // Convert 2D position to flat array index
-  // @param {number} width - Row width
-  // @returns {number}
   flatIndex(width) {
     return this.y * width + this.x;
   }
 
-  // @param {Vec2} other
-  // @returns {Vec2}
   add(other) {
     return new Vec2(this.x + other.x, this.y + other.y);
   }
 
-  // @param {Vec2} other
-  // @returns {Vec2}
   sub(other) {
     return new Vec2(this.x - other.x, this.y - other.y);
   }
 
-  // @param {number} scalar
-  // @returns {Vec2}
   mul(scalar) {
     return new Vec2(this.x * scalar, this.y * scalar);
   }
 
-  // @param {number} scalar
-  // @returns {Vec2}
   div(scalar) {
     return new Vec2(Math.floor(this.x / scalar), Math.floor(this.y / scalar));
   }
 
-  // @param {Vec2} other
-  // @returns {boolean}
   equals(other) {
     return this.x === other.x && this.y === other.y;
   }
@@ -62,27 +47,17 @@ export class Vec2 {
 
 // Integer rectangle bounds (data window, display window, block bounds)
 export class IntegerBounds {
-  // @param {Vec2} position - Top-left corner (can be negative)
-  // @param {Vec2} size - Width and height (always positive)
   constructor(position, size) {
     this.position = position;
     this.size = size;
   }
 
   // Create bounds from dimensions starting at origin
-  // @param {number} width
-  // @param {number} height
-  // @returns {IntegerBounds}
   static fromDimensions(width, height) {
     return new IntegerBounds(new Vec2(0, 0), new Vec2(width, height));
   }
 
   // Create bounds from min/max coordinates
-  // @param {number} minX
-  // @param {number} minY
-  // @param {number} maxX - Exclusive
-  // @param {number} maxY - Exclusive
-  // @returns {IntegerBounds}
   static fromMinMax(minX, minY, maxX, maxY) {
     return new IntegerBounds(
       new Vec2(minX, minY),
@@ -90,7 +65,6 @@ export class IntegerBounds {
     );
   }
 
-  // @returns {Vec2} End position (exclusive)
   end() {
     return new Vec2(
       this.position.x + this.size.x,
@@ -98,14 +72,11 @@ export class IntegerBounds {
     );
   }
 
-  // @returns {number} Total pixel count
   area() {
     return this.size.area();
   }
 
   // Check if a position is within bounds
-  // @param {Vec2} pos
-  // @returns {boolean}
   contains(pos) {
     const end = this.end();
     return (
@@ -117,8 +88,6 @@ export class IntegerBounds {
   }
 
   // Intersect with another bounds
-  // @param {IntegerBounds} other
-  // @returns {IntegerBounds|null}
   intersect(other) {
     const minX = Math.max(this.position.x, other.position.x);
     const minY = Math.max(this.position.y, other.position.y);
@@ -152,8 +121,6 @@ export const SampleType = Object.freeze({
 });
 
 // Get the number of bytes per sample for a given sample type
-// @param {string} sampleType
-// @returns {number}
 export function bytesPerSample(sampleType) {
   switch (sampleType) {
     case SampleType.F16:
@@ -167,8 +134,6 @@ export function bytesPerSample(sampleType) {
 }
 
 // Get the TypedArray constructor for a given sample type
-// @param {string} sampleType
-// @returns {typeof Float32Array | typeof Uint32Array | typeof Uint16Array}
 export function typedArrayForSampleType(sampleType) {
   switch (sampleType) {
     case SampleType.F16:
@@ -203,8 +168,6 @@ export const Compression = Object.freeze({
 });
 
 // Get the number of scan lines per block for a compression method
-// @param {number} compression
-// @returns {number}
 export function scanLinesPerBlock(compression) {
   switch (compression) {
     case Compression.Uncompressed:
@@ -235,10 +198,6 @@ export const LineOrder = Object.freeze({
 
 // Block storage mode
 export class Blocks {
-  // @param {'scanlines' | 'tiles'} type
-  // @param {Vec2|null} tileSize
-  // @param {number} levelMode - LevelMode.Singular, MipMap, or RipMap
-  // @param {number} roundingMode - RoundingMode.Down or Up
   constructor(type, tileSize = null, levelMode = 0, roundingMode = 0) {
     this.type = type;
     this.tileSize = tileSize;
@@ -249,24 +208,16 @@ export class Blocks {
   static ScanLines = new Blocks('scanlines');
 
   // Create tiled block mode
-  // @param {Vec2} size - Tile dimensions
-  // @returns {Blocks}
   static Tiles(size) {
     return new Blocks('tiles', size, 0, 0); // Singular, RoundDown
   }
 
   // Create tiled block mode with mip maps
-  // @param {Vec2} size - Tile dimensions
-  // @param {number} roundingMode - RoundingMode.Down or Up
-  // @returns {Blocks}
   static MipMaps(size, roundingMode = 0) {
     return new Blocks('tiles', size, 1, roundingMode); // MipMap
   }
 
   // Create tiled block mode with rip maps
-  // @param {Vec2} size - Tile dimensions
-  // @param {number} roundingMode - RoundingMode.Down or Up
-  // @returns {Blocks}
   static RipMaps(size, roundingMode = 0) {
     return new Blocks('tiles', size, 2, roundingMode); // RipMap
   }
@@ -307,10 +258,6 @@ export const RoundingMode = Object.freeze({
 });
 
 // Calculate the size at a given mip level
-// @param {number} fullSize - Full resolution size
-// @param {number} level - Level index (0 = full resolution)
-// @param {number} roundingMode - RoundingMode.Down or Up
-// @returns {number}
 export function mipLevelSize(fullSize, level, roundingMode) {
   if (level === 0) return fullSize;
 
@@ -327,8 +274,6 @@ export function mipLevelSize(fullSize, level, roundingMode) {
 }
 
 // Calculate the number of mip levels for a given dimension
-// @param {number} fullSize - Full resolution size
-// @returns {number}
 export function mipLevelCount(fullSize) {
   if (fullSize <= 0) return 0;
   return 1 + Math.floor(Math.log2(fullSize));
@@ -337,9 +282,6 @@ export function mipLevelCount(fullSize) {
 // Calculate mip level counts for an image
 // For mip maps: both dimensions use max(width, height) level count
 // For rip maps: each dimension has its own level count
-// @param {Vec2} size - Full resolution size
-// @param {number} levelMode - LevelMode.Singular, MipMap, or RipMap
-// @returns {Vec2} - Level counts (x levels, y levels)
 export function getLevelCounts(size, levelMode) {
   if (levelMode === LevelMode.Singular) {
     return new Vec2(1, 1);
@@ -354,11 +296,6 @@ export function getLevelCounts(size, levelMode) {
 }
 
 // Calculate the size of a level for mip/rip maps
-// @param {Vec2} fullSize - Full resolution size
-// @param {Vec2} levelIndex - Level index (x level, y level)
-// @param {number} levelMode - LevelMode.Singular, MipMap, or RipMap
-// @param {number} roundingMode - RoundingMode.Down or Up
-// @returns {Vec2}
 export function getLevelSize(fullSize, levelIndex, levelMode, roundingMode) {
   if (levelMode === LevelMode.Singular) {
     return fullSize.clone();

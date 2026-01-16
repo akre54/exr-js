@@ -25,8 +25,6 @@ export class Requirements {
   }
 
   // Infer requirements from headers
-// @param {Header[]} headers
-// @returns {Requirements}
   static fromHeaders(headers) {
     const req = new Requirements();
 
@@ -52,7 +50,6 @@ export class Requirements {
   }
 
   // Write the requirements to a writer
-// @param {BinaryWriter} writer
   write(writer) {
     let versionAndFlags = this.fileFormatVersion & 0x0f;
 
@@ -75,29 +72,23 @@ export class Requirements {
 
 // Complete file metadata
 export class MetaData {
-  // @param {Requirements} requirements
-// @param {Header[]} headers
   constructor(requirements, headers) {
     this.requirements = requirements;
     this.headers = headers;
   }
 
   // Create metadata from headers
-// @param {Header[]} headers
-// @returns {MetaData}
   static fromHeaders(headers) {
     const requirements = Requirements.fromHeaders(headers);
     return new MetaData(requirements, headers);
   }
 
   // Write the magic number to a writer
-// @param {BinaryWriter} writer
   static writeMagicNumber(writer) {
     writer.writeU32(MAGIC_NUMBER);
   }
 
   // Write complete metadata (magic, version, headers) to a writer
-// @param {BinaryWriter} writer
   write(writer) {
     MetaData.writeMagicNumber(writer);
     this.requirements.write(writer);
@@ -105,7 +96,6 @@ export class MetaData {
   }
 
   // Get total chunk count across all headers
-// @returns {number}
   get totalChunkCount() {
     return this.headers.reduce((sum, h) => sum + h.chunkCount, 0);
   }
@@ -113,13 +103,11 @@ export class MetaData {
 
 // Offset table for chunk locations
 export class OffsetTable {
-  // @param {number} count - Number of chunks
   constructor(count) {
     this.offsets = new Array(count).fill(0n);
   }
 
   // Write the offset table to a writer
-// @param {BinaryWriter} writer
   write(writer) {
     for (const offset of this.offsets) {
       writer.writeU64(offset);
@@ -127,7 +115,6 @@ export class OffsetTable {
   }
 
   // Byte size of the offset table
-// @returns {number}
   get byteSize() {
     return this.offsets.length * 8;
   }

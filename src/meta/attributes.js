@@ -7,17 +7,11 @@ import { Vec2, IntegerBounds, SampleType, bytesPerSample, Compression, LineOrder
 import { AttributeType } from '../core/constants.js';
 
 // Write a null-terminated string
-// @param {BinaryWriter} writer
-// @param {string} str
 export function writeNullTerminatedString(writer, str) {
   writer.writeNullTerminatedString(str);
 }
 
 // Write an attribute to the writer
-// @param {BinaryWriter} writer
-// @param {string} name - Attribute name
-// @param {string} typeName - Attribute type name
-// @param {Uint8Array|function} value - Value bytes or write function
 export function writeAttribute(writer, name, typeName, value) {
   writeNullTerminatedString(writer, name);
   writeNullTerminatedString(writer, typeName);
@@ -36,9 +30,6 @@ export function writeAttribute(writer, name, typeName, value) {
 }
 
 // Write a box2i (integer bounds) attribute
-// @param {BinaryWriter} writer
-// @param {string} name
-// @param {IntegerBounds} bounds
 export function writeBox2i(writer, name, bounds) {
   writeAttribute(writer, name, AttributeType.BOX2I, (w) => {
     // xMin, yMin, xMax, yMax (all i32, max is inclusive)
@@ -50,8 +41,6 @@ export function writeBox2i(writer, name, bounds) {
 }
 
 // Write a compression attribute
-// @param {BinaryWriter} writer
-// @param {number} compression
 export function writeCompression(writer, compression) {
   writeAttribute(writer, 'compression', AttributeType.COMPRESSION, (w) => {
     w.writeU8(compression);
@@ -59,8 +48,6 @@ export function writeCompression(writer, compression) {
 }
 
 // Write a line order attribute
-// @param {BinaryWriter} writer
-// @param {number} lineOrder
 export function writeLineOrder(writer, lineOrder) {
   writeAttribute(writer, 'lineOrder', AttributeType.LINE_ORDER, (w) => {
     w.writeU8(lineOrder);
@@ -68,9 +55,6 @@ export function writeLineOrder(writer, lineOrder) {
 }
 
 // Write a float attribute
-// @param {BinaryWriter} writer
-// @param {string} name
-// @param {number} value
 export function writeFloat(writer, name, value) {
   writeAttribute(writer, name, AttributeType.FLOAT, (w) => {
     w.writeF32(value);
@@ -78,9 +62,6 @@ export function writeFloat(writer, name, value) {
 }
 
 // Write a v2f (Vec2<f32>) attribute
-// @param {BinaryWriter} writer
-// @param {string} name
-// @param {Vec2} value
 export function writeV2f(writer, name, value) {
   writeAttribute(writer, name, AttributeType.V2F, (w) => {
     w.writeF32(value.x);
@@ -89,9 +70,6 @@ export function writeV2f(writer, name, value) {
 }
 
 // Write a string attribute
-// @param {BinaryWriter} writer
-// @param {string} name
-// @param {string} value
 export function writeString(writer, name, value) {
   const encoder = new TextEncoder();
   const bytes = encoder.encode(value);
@@ -99,10 +77,6 @@ export function writeString(writer, name, value) {
 }
 
 // Write a tiledesc attribute
-// @param {BinaryWriter} writer
-// @param {Vec2} tileSize
-// @param {number} levelMode
-// @param {number} roundingMode
 export function writeTileDescription(writer, tileSize, levelMode, roundingMode) {
   writeAttribute(writer, 'tiles', AttributeType.TILE_DESC, (w) => {
     w.writeU32(tileSize.x);
@@ -115,10 +89,6 @@ export function writeTileDescription(writer, tileSize, levelMode, roundingMode) 
 
 // Channel description for the channel list
 export class ChannelDescription {
-  // @param {string} name - Channel name
-// @param {string} sampleType - Sample type (f16, f32, u32)
-// @param {boolean} quantizeLinearly - True for alpha/depth, false for RGB
-// @param {Vec2} sampling - Subsampling (usually 1,1)
   constructor(name, sampleType = SampleType.F32, quantizeLinearly = null, sampling = new Vec2(1, 1)) {
     this.name = name;
     this.sampleType = sampleType;
@@ -128,15 +98,11 @@ export class ChannelDescription {
   }
 
   // Create a channel description with just name and type
-// @param {string} name
-// @param {string} sampleType
-// @returns {ChannelDescription}
   static named(name, sampleType = SampleType.F32) {
     return new ChannelDescription(name, sampleType);
   }
 
   // Get the pixel type ID for the file format
-// @returns {number}
   get pixelTypeId() {
     switch (this.sampleType) {
       case SampleType.U32:
@@ -151,7 +117,6 @@ export class ChannelDescription {
   }
 
   // Get bytes per sample
-// @returns {number}
   get bytesPerSample() {
     return bytesPerSample(this.sampleType);
   }
@@ -159,20 +124,17 @@ export class ChannelDescription {
 
 // Channel list - collection of channel descriptions
 export class ChannelList {
-  // @param {ChannelDescription[]} channels
   constructor(channels) {
     // Sort channels alphabetically by name (EXR requirement)
     this.list = [...channels].sort((a, b) => a.name.localeCompare(b.name));
   }
 
   // Calculate bytes per pixel
-// @returns {number}
   get bytesPerPixel() {
     return this.list.reduce((sum, ch) => sum + ch.bytesPerSample, 0);
   }
 
   // Check if all channels have the same sample type
-// @returns {string|null}
   get uniformSampleType() {
     if (this.list.length === 0) return null;
     const first = this.list[0].sampleType;
@@ -180,7 +142,6 @@ export class ChannelList {
   }
 
   // Write the channel list to a writer
-// @param {BinaryWriter} writer
   write(writer) {
     for (const channel of this.list) {
       // Channel name (null-terminated)
@@ -204,8 +165,6 @@ export class ChannelList {
 }
 
 // Write channel list attribute
-// @param {BinaryWriter} writer
-// @param {ChannelList} channels
 export function writeChannelList(writer, channels) {
   writeAttribute(writer, 'channels', AttributeType.CHLIST, (w) => {
     channels.write(w);
@@ -213,8 +172,6 @@ export function writeChannelList(writer, channels) {
 }
 
 // Write the type attribute (scanlineimage, tiledimage, etc.)
-// @param {BinaryWriter} writer
-// @param {string} type - 'scanlineimage' or 'tiledimage'
 export function writeType(writer, type) {
   const encoder = new TextEncoder();
   const bytes = encoder.encode(type);
@@ -222,9 +179,6 @@ export function writeType(writer, type) {
 }
 
 // Write an int attribute
-// @param {BinaryWriter} writer
-// @param {string} name
-// @param {number} value
 export function writeInt(writer, name, value) {
   writeAttribute(writer, name, 'int', (w) => {
     w.writeI32(value);

@@ -5,7 +5,6 @@ import { halfToFloat } from '../lib/half.js';
 // Binary reader for parsing EXR files
 // All multi-byte values are read in little-endian format
 export class BinaryReader {
-  // @param {ArrayBuffer|Uint8Array} buffer - Buffer to read from
   constructor(buffer) {
     if (buffer instanceof Uint8Array) {
       this.buffer = buffer.buffer;
@@ -22,7 +21,6 @@ export class BinaryReader {
   }
 
   // Check if there are enough bytes remaining
-// @param {number} count - Number of bytes needed
   checkBounds(count) {
     if (this.position + count > this.byteLength) {
       throw new RangeError(
@@ -32,21 +30,18 @@ export class BinaryReader {
   }
 
   // Read unsigned 8-bit integer
-// @returns {number}
   readU8() {
     this.checkBounds(1);
     return this.u8[this.position++];
   }
 
   // Read signed 8-bit integer
-// @returns {number}
   readI8() {
     this.checkBounds(1);
     return this.view.getInt8(this.position++);
   }
 
   // Read unsigned 16-bit integer (little-endian)
-// @returns {number}
   readU16() {
     this.checkBounds(2);
     const value = this.view.getUint16(this.position, true);
@@ -55,7 +50,6 @@ export class BinaryReader {
   }
 
   // Read signed 16-bit integer (little-endian)
-// @returns {number}
   readI16() {
     this.checkBounds(2);
     const value = this.view.getInt16(this.position, true);
@@ -64,7 +58,6 @@ export class BinaryReader {
   }
 
   // Read unsigned 32-bit integer (little-endian)
-// @returns {number}
   readU32() {
     this.checkBounds(4);
     const value = this.view.getUint32(this.position, true);
@@ -73,7 +66,6 @@ export class BinaryReader {
   }
 
   // Read signed 32-bit integer (little-endian)
-// @returns {number}
   readI32() {
     this.checkBounds(4);
     const value = this.view.getInt32(this.position, true);
@@ -82,7 +74,6 @@ export class BinaryReader {
   }
 
   // Read unsigned 64-bit integer (little-endian)
-// @returns {bigint}
   readU64() {
     this.checkBounds(8);
     const value = this.view.getBigUint64(this.position, true);
@@ -91,7 +82,6 @@ export class BinaryReader {
   }
 
   // Read signed 64-bit integer (little-endian)
-// @returns {bigint}
   readI64() {
     this.checkBounds(8);
     const value = this.view.getBigInt64(this.position, true);
@@ -100,7 +90,6 @@ export class BinaryReader {
   }
 
   // Read 32-bit float (little-endian)
-// @returns {number}
   readF32() {
     this.checkBounds(4);
     const value = this.view.getFloat32(this.position, true);
@@ -109,7 +98,6 @@ export class BinaryReader {
   }
 
   // Read 64-bit float (little-endian)
-// @returns {number}
   readF64() {
     this.checkBounds(8);
     const value = this.view.getFloat64(this.position, true);
@@ -118,14 +106,11 @@ export class BinaryReader {
   }
 
   // Read 16-bit half-precision float (little-endian)
-// @returns {number} - 32-bit float value
   readF16() {
     return halfToFloat(this.readU16());
   }
 
   // Read raw bytes
-// @param {number} count - Number of bytes to read
-// @returns {Uint8Array}
   readBytes(count) {
     this.checkBounds(count);
     const bytes = this.u8.slice(this.position, this.position + count);
@@ -134,8 +119,6 @@ export class BinaryReader {
   }
 
   // Read raw bytes as a view (no copy)
-// @param {number} count - Number of bytes to read
-// @returns {Uint8Array}
   readBytesView(count) {
     this.checkBounds(count);
     const bytes = this.u8.subarray(this.position, this.position + count);
@@ -144,7 +127,6 @@ export class BinaryReader {
   }
 
   // Read null-terminated string (ASCII/UTF-8)
-// @returns {string}
   readNullTerminatedString() {
     const start = this.position;
     while (this.position < this.byteLength && this.u8[this.position] !== 0) {
@@ -158,8 +140,6 @@ export class BinaryReader {
   }
 
   // Read fixed-length string
-// @param {number} length - Number of bytes to read
-// @returns {string}
   readFixedString(length) {
     this.checkBounds(length);
     const bytes = this.u8.subarray(this.position, this.position + length);
@@ -176,7 +156,6 @@ export class BinaryReader {
   }
 
   // Read string with length prefix (i32)
-// @returns {string}
   readLengthPrefixedString() {
     const length = this.readI32();
     if (length < 0) {
@@ -189,27 +168,23 @@ export class BinaryReader {
   }
 
   // Peek unsigned 8-bit integer without advancing position
-// @returns {number}
   peekU8() {
     this.checkBounds(1);
     return this.u8[this.position];
   }
 
   // Peek unsigned 32-bit integer without advancing position
-// @returns {number}
   peekU32() {
     this.checkBounds(4);
     return this.view.getUint32(this.position, true);
   }
 
   // Get current read position
-// @returns {number}
   getPosition() {
     return this.position;
   }
 
   // Set read position
-// @param {number} pos
   setPosition(pos) {
     if (pos < 0 || pos > this.byteLength) {
       throw new RangeError(`Position ${pos} out of bounds (0-${this.byteLength})`);
@@ -218,33 +193,27 @@ export class BinaryReader {
   }
 
   // Skip bytes
-// @param {number} count
   skip(count) {
     this.checkBounds(count);
     this.position += count;
   }
 
   // Get number of bytes remaining
-// @returns {number}
   remaining() {
     return this.byteLength - this.position;
   }
 
   // Check if there are more bytes to read
-// @returns {boolean}
   hasRemaining() {
     return this.position < this.byteLength;
   }
 
   // Check if at end of buffer
-// @returns {boolean}
   isAtEnd() {
     return this.position >= this.byteLength;
   }
 
   // Create a sub-reader for a portion of the buffer
-// @param {number} length - Length of sub-buffer
-// @returns {BinaryReader}
   subReader(length) {
     this.checkBounds(length);
     const subBuffer = this.u8.subarray(this.position, this.position + length);

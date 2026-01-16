@@ -32,7 +32,6 @@ import {
 
 // Image-level attributes shared across all layers
 export class ImageAttributes {
-  // @param {IntegerBounds} displayWindow
   constructor(displayWindow) {
     this.displayWindow = displayWindow;
     this.pixelAspect = 1.0;
@@ -42,8 +41,6 @@ export class ImageAttributes {
   }
 
   // Create image attributes with display window matching a size
-// @param {Vec2} size
-// @returns {ImageAttributes}
   static withSize(size) {
     return new ImageAttributes(IntegerBounds.fromDimensions(size.x, size.y));
   }
@@ -60,8 +57,6 @@ export class LayerAttributes {
   }
 
   // Create layer attributes with a name
-// @param {string} name
-// @returns {LayerAttributes}
   static named(name) {
     const attrs = new LayerAttributes();
     attrs.layerName = name;
@@ -71,9 +66,6 @@ export class LayerAttributes {
 
 // Encoding settings for a layer
 export class Encoding {
-  // @param {number} compression
-// @param {Blocks} blocks
-// @param {number} lineOrder
   constructor(compression, blocks, lineOrder) {
     this.compression = compression;
     this.blocks = blocks;
@@ -111,11 +103,6 @@ export class Encoding {
 
 // Header for a single layer
 export class Header {
-  // @param {Vec2} layerSize - Layer resolution
-// @param {ChannelList} channels - Channel descriptions
-// @param {Encoding} encoding - Compression and block settings
-// @param {ImageAttributes} sharedAttributes - Image-level attributes
-// @param {LayerAttributes} ownAttributes - Layer-level attributes
   constructor(layerSize, channels, encoding, sharedAttributes, ownAttributes) {
     this.layerSize = layerSize;
     this.channels = channels;
@@ -125,13 +112,11 @@ export class Header {
   }
 
   // Get the data window bounds
-// @returns {IntegerBounds}
   get dataWindow() {
     return new IntegerBounds(this.ownAttributes.layerPosition, this.layerSize);
   }
 
   // Calculate the number of blocks/chunks in this layer
-// @returns {number}
   get chunkCount() {
     if (this.encoding.blocks.isTiled()) {
       return calculateTotalTileCount(this.layerSize, this.encoding.blocks);
@@ -143,14 +128,11 @@ export class Header {
   }
 
   // Get the layer type string
-// @returns {string}
   get layerType() {
     return this.encoding.blocks.isTiled() ? LayerType.TILED : LayerType.SCANLINE;
   }
 
   // Write this header to a writer
-// @param {BinaryWriter} writer
-// @param {boolean} isMultiPart - Whether this is a multi-part file
   write(writer, isMultiPart) {
     // Required attributes
     writeChannelList(writer, this.channels);
@@ -192,9 +174,6 @@ export class Header {
 }
 
 // Write all headers to a writer
-// @param {BinaryWriter} writer
-// @param {Header[]} headers
-// @param {boolean} isMultiPart
 export function writeHeaders(writer, headers, isMultiPart) {
   for (const header of headers) {
     header.write(writer, isMultiPart);

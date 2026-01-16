@@ -14,32 +14,23 @@ import { floatToHalf, halfToFloat } from '../lib/half.js';
 
 // Complete EXR image container
 export class Image {
-  // @param {ImageAttributes} attributes - Image-level attributes
-// @param {Layer|Layer[]} layerData - Single layer or array of layers
   constructor(attributes, layerData) {
     this.attributes = attributes;
     this.layerData = layerData;
   }
 
   // Get layers as array
-// @returns {Layer[]}
   get layers() {
     return Array.isArray(this.layerData) ? this.layerData : [this.layerData];
   }
 
   // Create image from a single layer
-// @param {Layer} layer
-// @returns {Image}
   static fromLayer(layer) {
     const displayWindow = IntegerBounds.fromDimensions(layer.size.x, layer.size.y);
     return new Image(new ImageAttributes(displayWindow), layer);
   }
 
   // Create image from channels (convenience method)
-// @param {Vec2|[number, number]} size - Image dimensions
-// @param {import('./channels.js').AnyChannels|import('./channels.js').SpecificChannels} channels
-// @param {Encoding} encoding
-// @returns {Image}
   static fromChannels(size, channels, encoding = Encoding.FAST_LOSSLESS) {
     const vec = size instanceof Vec2 ? size : new Vec2(size[0], size[1]);
     const layer = Layer.create(vec, channels, encoding);
@@ -47,22 +38,17 @@ export class Image {
   }
 
   // Create an empty image and add layers
-// @param {ImageAttributes} attributes
-// @returns {Image}
   static empty(attributes) {
     return new Image(attributes, []);
   }
 
   // Add a layer to this image
-// @param {Layer} layer
-// @returns {Image}
   withLayer(layer) {
     const layers = [...this.layers, layer];
     return new Image(this.attributes, layers);
   }
 
   // Start building a write operation
-// @returns {WriteImageWithOptions}
   write() {
     return new WriteImageWithOptions(this);
   }
@@ -70,7 +56,6 @@ export class Image {
 
 // Write operation builder
 export class WriteImageWithOptions {
-  // @param {Image} image
   constructor(image) {
     this._image = image;
     this._parallel = false;
@@ -78,42 +63,34 @@ export class WriteImageWithOptions {
   }
 
   // Enable parallel compression (future feature)
-// @returns {WriteImageWithOptions}
   parallel() {
     this._parallel = true;
     return this;
   }
 
   // Disable parallel compression
-// @returns {WriteImageWithOptions}
   nonParallel() {
     this._parallel = false;
     return this;
   }
 
   // Set progress callback
-// @param {Function} callback - (progress: number) => void, progress 0-1
-// @returns {WriteImageWithOptions}
   onProgress(callback) {
     this._onProgress = callback;
     return this;
   }
 
   // Write to an ArrayBuffer
-// @returns {ArrayBuffer}
   toArrayBuffer() {
     return writeImage(this._image, this._onProgress);
   }
 
   // Write to a Uint8Array
-// @returns {Uint8Array}
   toUint8Array() {
     return new Uint8Array(this.toArrayBuffer());
   }
 
   // Write to a file (Node.js) or trigger download (browser)
-// @param {string} filename
-// @returns {Promise<void>}
   async toFile(filename) {
     const buffer = this.toArrayBuffer();
     await writeToFile(buffer, filename);
@@ -121,9 +98,6 @@ export class WriteImageWithOptions {
 }
 
 // Write an image to an ArrayBuffer
-// @param {Image} image
-// @param {Function|null} onProgress
-// @returns {ArrayBuffer}
 function writeImage(image, onProgress) {
   const layers = image.layers;
 
@@ -243,11 +217,6 @@ function writeImage(image, onProgress) {
 }
 
 // Create a chunk from block data
-// @param {number} layerIndex
-// @param {import('../block/index.js').BlockIndex} blockIndex
-// @param {Uint8Array} data
-// @param {import('../core/types.js').Blocks} blocks
-// @returns {Chunk}
 function createChunk(layerIndex, blockIndex, data, blocks) {
   if (blocks.isTiled()) {
     // Calculate tile coordinates
@@ -269,9 +238,6 @@ function createChunk(layerIndex, blockIndex, data, blocks) {
 }
 
 // Estimate file size for buffer allocation
-// @param {Header[]} headers
-// @param {Layer[]} layers
-// @returns {number}
 function estimateFileSize(headers, layers) {
   let size = 1024; // Base overhead for headers
 
@@ -295,10 +261,6 @@ function estimateFileSize(headers, layers) {
 
 // Generate downscaled channel data for a mip level
 // Uses box filter (2x2 average) for downscaling
-// @param {AnyChannels|SpecificChannels} channels - Source channel data
-// @param {Vec2} sourceSize - Source resolution
-// @param {Vec2} targetSize - Target resolution
-// @returns {AnyChannels} - Downscaled channel data
 function generateMipLevel(channels, sourceSize, targetSize) {
   const channelList = channels.getChannelList();
   const newChannels = [];
@@ -319,12 +281,6 @@ function generateMipLevel(channels, sourceSize, targetSize) {
 }
 
 // Downsample a single channel using box filter
-// @param {AnyChannels|SpecificChannels} channels
-// @param {string} channelName
-// @param {Vec2} sourceSize
-// @param {Vec2} targetSize
-// @param {string} sampleType
-// @returns {FlatSamples}
 function downsampleChannel(channels, channelName, sourceSize, targetSize, sampleType) {
   const targetPixels = targetSize.x * targetSize.y;
 
@@ -382,11 +338,6 @@ function downsampleChannel(channels, channelName, sourceSize, targetSize, sample
 }
 
 // Get a channel value as float
-// @param {AnyChannels|SpecificChannels} channels
-// @param {string} channelName
-// @param {number} pixelIndex
-// @param {string} sampleType
-// @returns {number}
 function getChannelValue(channels, channelName, pixelIndex, sampleType) {
   const bytes = channels.getSampleBytes(channelName, pixelIndex);
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
@@ -405,9 +356,6 @@ function getChannelValue(channels, channelName, pixelIndex, sampleType) {
 
 // Manages channel data for multiple mip levels
 class MipLevelManager {
-  // @param {AnyChannels|SpecificChannels} baseChannels - Level 0 channel data
-// @param {Vec2} baseSize - Level 0 size
-// @param {import('../core/types.js').Blocks} blocks
   constructor(baseChannels, baseSize, blocks) {
     this.baseChannels = baseChannels;
     this.baseSize = baseSize;
@@ -417,8 +365,6 @@ class MipLevelManager {
   }
 
   // Get channel data for a specific level
-// @param {Vec2} levelIndex
-// @returns {AnyChannels|SpecificChannels}
   getChannelsForLevel(levelIndex) {
     const key = `${levelIndex.x},${levelIndex.y}`;
 
@@ -477,8 +423,6 @@ class MipLevelManager {
   }
 
   // Get size for a specific level
-// @param {Vec2} levelIndex
-// @returns {Vec2}
   getSizeForLevel(levelIndex) {
     return getLevelSize(this.baseSize, levelIndex, this.blocks.levelMode, this.blocks.roundingMode);
   }
