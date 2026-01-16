@@ -1,6 +1,4 @@
-/**
- * Core module - fundamental types and constants
- */
+// Core module - fundamental types and constants
 
 export * from './types.js';
 export * from './constants.js';

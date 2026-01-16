@@ -1,16 +1,12 @@
-/**
- * PIZ compression for EXR
- *
- * PIZ compression uses wavelet transform + Huffman coding.
- * Best for noisy/photographic images, typically 35-55% of uncompressed size.
- *
- * Algorithm:
- * 1. Convert to u16 values (treating f16 as raw bits, f32/u32 as two u16s)
- * 2. Build bitmap of used values
- * 3. Create lookup tables to compress value range
- * 4. Apply Haar wavelet transform to each channel
- * 5. Huffman encode the result
- */
+// PIZ compression for EXR
+// PIZ compression uses wavelet transform + Huffman coding.
+// Best for noisy/photographic images, typically 35-55% of uncompressed size.
+// Algorithm:
+// 1. Convert to u16 values (treating f16 as raw bits, f32/u32 as two u16s)
+// 2. Build bitmap of used values
+// 3. Create lookup tables to compress value range
+// 4. Apply Haar wavelet transform to each channel
+// 5. Huffman encode the result
 
 import { SampleType } from '../../core/types.js';
 import { waveletEncode, waveletDecode } from './wavelet.js';
@@ -19,11 +15,9 @@ import { huffmanCompress, huffmanDecompress } from './huffman.js';
 const U16_RANGE = 1 << 16; // 65536
 const BITMAP_SIZE = U16_RANGE >> 3; // 8192 bytes
 
-/**
- * Build a bitmap of which u16 values are present in the data
- * @param {Uint16Array} data
- * @returns {{minNonZero: number, maxNonZero: number, bitmap: Uint8Array}}
- */
+// Build a bitmap of which u16 values are present in the data
+// @param {Uint16Array} data
+// @returns {{minNonZero: number, maxNonZero: number, bitmap: Uint8Array}}
 function bitmapFromData(data) {
   const bitmap = new Uint8Array(BITMAP_SIZE);
 
@@ -54,11 +48,9 @@ function bitmapFromData(data) {
   return { minNonZero, maxNonZero, bitmap };
 }
 
-/**
- * Build forward lookup table from bitmap (compress value range)
- * @param {Uint8Array} bitmap
- * @returns {{maxValue: number, table: Uint16Array}}
- */
+// Build forward lookup table from bitmap (compress value range)
+// @param {Uint8Array} bitmap
+// @returns {{maxValue: number, table: Uint16Array}}
 function forwardLookupTableFromBitmap(bitmap) {
   const table = new Uint16Array(U16_RANGE);
   let count = 0;
@@ -73,11 +65,9 @@ function forwardLookupTableFromBitmap(bitmap) {
   return { maxValue: count - 1, table };
 }
 
-/**
- * Build reverse lookup table from bitmap (expand value range)
- * @param {Uint8Array} bitmap
- * @returns {{maxValue: number, table: Uint16Array}}
- */
+// Build reverse lookup table from bitmap (expand value range)
+// @param {Uint8Array} bitmap
+// @returns {{maxValue: number, table: Uint16Array}}
 function reverseLookupTableFromBitmap(bitmap) {
   const table = [];
 
@@ -97,20 +87,16 @@ function reverseLookupTableFromBitmap(bitmap) {
   return { maxValue, table: new Uint16Array(table) };
 }
 
-/**
- * Apply a lookup table to transform data values
- * @param {Uint16Array} data
- * @param {Uint16Array} table
- */
+// Apply a lookup table to transform data values
+// @param {Uint16Array} data
+// @param {Uint16Array} table
 function applyLookupTable(data, table) {
   for (let i = 0; i < data.length; i++) {
     data[i] = table[data[i]];
   }
 }
 
-/**
- * Channel metadata for PIZ compression
- */
+// Channel metadata for PIZ compression
 class ChannelData {
   constructor(tmpStartIndex, resolution, ySampling, samplesPerPixel) {
     this.tmpStartIndex = tmpStartIndex;
@@ -121,15 +107,12 @@ class ChannelData {
   }
 }
 
-/**
- * Compress data using PIZ
- *
- * @param {Uint8Array} data - Uncompressed pixel data (little-endian)
- * @param {Array<{name: string, sampleType: number}>} channels - Channel descriptions
- * @param {number} width - Block width
- * @param {number} height - Block height
- * @returns {Uint8Array} - Compressed data
- */
+// Compress data using PIZ
+// @param {Uint8Array} data - Uncompressed pixel data (little-endian)
+// @param {Array<{name: string, sampleType: number}>} channels - Channel descriptions
+// @param {number} width - Block width
+// @param {number} height - Block height
+// @returns {Uint8Array} - Compressed data
 export function compressPIZ(data, channels, width, height) {
   if (data.length === 0) {
     return new Uint8Array(0);
@@ -247,16 +230,13 @@ export function compressPIZ(data, channels, width, height) {
   return output;
 }
 
-/**
- * Decompress PIZ data
- *
- * @param {Uint8Array} compressed - Compressed data
- * @param {Array<{name: string, sampleType: number}>} channels - Channel descriptions
- * @param {number} width - Block width
- * @param {number} height - Block height
- * @param {number} expectedSize - Expected uncompressed size in bytes
- * @returns {Uint8Array} - Decompressed data
- */
+// Decompress PIZ data
+// @param {Uint8Array} compressed - Compressed data
+// @param {Array<{name: string, sampleType: number}>} channels - Channel descriptions
+// @param {number} width - Block width
+// @param {number} height - Block height
+// @param {number} expectedSize - Expected uncompressed size in bytes
+// @returns {Uint8Array} - Decompressed data
 export function decompressPIZ(compressed, channels, width, height, expectedSize) {
   if (compressed.length === 0) {
     return new Uint8Array(0);

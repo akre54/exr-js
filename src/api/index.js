@@ -1,6 +1,4 @@
-/**
- * Public API for exr-js
- */
+// Public API for exr-js
 
 import { Vec2, IntegerBounds, SampleType, Compression, LineOrder, Blocks } from '../core/types.js';
 import { Image } from '../image/image.js';
@@ -17,15 +15,10 @@ export { SpecificChannels, AnyChannels, AnyChannel, FlatSamples } from '../image
 export { Encoding, LayerAttributes, ImageAttributes } from '../meta/header.js';
 export { ChannelDescription, ChannelList } from '../meta/attributes.js';
 
-/**
- * Write an RGBA image to a file
- * @param {string|null} path - File path (Node) or null for ArrayBuffer
- * @param {number} width
- * @param {number} height
- * @param {Function|Float32Array} pixels - (index) => [r,g,b,a] or interleaved Float32Array
- * @param {Encoding} encoding
- * @returns {Promise<ArrayBuffer|void>}
- */
+// Reading API
+export { readRgbaFile, readRgbFile, EXRReader } from './read.js';
+
+// Write an RGBA image to a file
 export async function writeRgbaFile(path, width, height, pixels, encoding = Encoding.FAST_LOSSLESS) {
   const channels = SpecificChannels.rgba(pixels);
   const image = Image.fromChannels(new Vec2(width, height), channels, encoding);
@@ -36,15 +29,7 @@ export async function writeRgbaFile(path, width, height, pixels, encoding = Enco
   return image.write().toArrayBuffer();
 }
 
-/**
- * Write an RGB image to a file
- * @param {string|null} path - File path (Node) or null for ArrayBuffer
- * @param {number} width
- * @param {number} height
- * @param {Function|Float32Array} pixels - (index) => [r,g,b] or interleaved Float32Array
- * @param {Encoding} encoding
- * @returns {Promise<ArrayBuffer|void>}
- */
+// Write an RGB image to a file
 export async function writeRgbFile(path, width, height, pixels, encoding = Encoding.FAST_LOSSLESS) {
   const channels = SpecificChannels.rgb(pixels);
   const image = Image.fromChannels(new Vec2(width, height), channels, encoding);
@@ -55,37 +40,21 @@ export async function writeRgbFile(path, width, height, pixels, encoding = Encod
   return image.write().toArrayBuffer();
 }
 
-/**
- * High-level EXR writer for render passes
- */
+// High-level EXR writer for render passes
 export class EXRWriter {
-  /**
-   * @param {number} width
-   * @param {number} height
-   */
   constructor(width, height) {
     this.width = width;
     this.height = height;
-    /** @type {LayerBuilder[]} */
     this._layers = [];
   }
 
-  /**
-   * Add a render pass layer
-   * @param {string} name - Layer name
-   * @param {object} options
-   * @returns {LayerBuilder}
-   */
+  // Add a render pass layer
   addLayer(name, options = {}) {
     const builder = new LayerBuilder(this, name, options);
     return builder;
   }
 
-  /**
-   * Build and write the EXR
-   * @param {string|null} filenameOrNull - Filename or null for ArrayBuffer
-   * @returns {Promise<ArrayBuffer|void>}
-   */
+  // Build and write the EXR
   async write(filenameOrNull = null) {
     const image = this._buildImage();
 
@@ -95,10 +64,7 @@ export class EXRWriter {
     return image.write().toArrayBuffer();
   }
 
-  /**
-   * Build the Image object
-   * @returns {Image}
-   */
+  // Build the Image object
   _buildImage() {
     const size = new Vec2(this.width, this.height);
     const layers = this._layers.map((builder) => builder._build(size));
@@ -112,15 +78,8 @@ export class EXRWriter {
   }
 }
 
-/**
- * Builder for a single layer
- */
+// Builder for a single layer
 class LayerBuilder {
-  /**
-   * @param {EXRWriter} writer
-   * @param {string} name
-   * @param {object} options
-   */
   constructor(writer, name, options) {
     this._writer = writer;
     this._name = name;
@@ -132,56 +91,33 @@ class LayerBuilder {
     this._sampleType = SampleType.F32;
   }
 
-  /**
-   * Set RGBA channels
-   * @param {Float32Array|Function} data
-   * @returns {LayerBuilder}
-   */
+  // Set RGBA channels
   rgba(data) {
     this._isRgba = true;
     this._pixelSource = data;
     return this;
   }
 
-  /**
-   * Set RGB channels
-   * @param {Float32Array|Function} data
-   * @returns {LayerBuilder}
-   */
+  // Set RGB channels
   rgb(data) {
     this._isRgb = true;
     this._pixelSource = data;
     return this;
   }
 
-  /**
-   * Add a single channel
-   * @param {string} name - Channel name
-   * @param {string} sampleType - Sample type (SampleType.F16, F32, or U32)
-   * @param {Float32Array|Uint32Array|Uint16Array} data - Sample data
-   * @returns {LayerBuilder}
-   */
+  // Add a single channel
   channel(name, sampleType, data) {
     this._channelDescriptions.push({ name, sampleType, data });
     return this;
   }
 
-  /**
-   * Set compression method
-   * @param {number} compression - Compression type from Compression enum
-   * @returns {LayerBuilder}
-   */
+  // Set compression method
   compression(compression) {
     this._encoding = new Encoding(compression, this._encoding.blocks, this._encoding.lineOrder);
     return this;
   }
 
-  /**
-   * Use tiled storage
-   * @param {number} tileWidth - Tile width (default 64)
-   * @param {number} tileHeight - Tile height (default 64)
-   * @returns {LayerBuilder}
-   */
+  // Use tiled storage
   tiled(tileWidth = 64, tileHeight = 64) {
     this._encoding = new Encoding(
       this._encoding.compression,
@@ -191,10 +127,7 @@ class LayerBuilder {
     return this;
   }
 
-  /**
-   * Use scanline storage
-   * @returns {LayerBuilder}
-   */
+  // Use scanline storage
   scanlines() {
     this._encoding = new Encoding(
       this._encoding.compression,
@@ -204,30 +137,19 @@ class LayerBuilder {
     return this;
   }
 
-  /**
-   * Set sample type for RGB/RGBA channels
-   * @param {string} sampleType - SampleType.F16, F32, or U32
-   * @returns {LayerBuilder}
-   */
+  // Set sample type for RGB/RGBA channels
   sampleType(sampleType) {
     this._sampleType = sampleType;
     return this;
   }
 
-  /**
-   * Complete this layer and return to writer
-   * @returns {EXRWriter}
-   */
+  // Complete this layer and return to writer
   end() {
     this._writer._layers.push(this);
     return this._writer;
   }
 
-  /**
-   * Build the Layer object
-   * @param {Vec2} size
-   * @returns {Layer}
-   */
+  // Build the Layer object
   _build(size) {
     let channelData;
 

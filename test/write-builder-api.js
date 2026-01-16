@@ -1,6 +1,4 @@
-/**
- * Test the EXRWriter builder API
- */
+// Test the EXRWriter builder API
 
 import { test, expect } from 'vitest';
 import { EXRWriter, Compression, SampleType } from '../src/index.js';

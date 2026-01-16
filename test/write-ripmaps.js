@@ -1,6 +1,4 @@
-/**
- * Test writing EXR files with rip maps
- */
+// Test writing EXR files with rip maps
 
 import { test, expect } from 'vitest';
 import { Image, Layer, SpecificChannels, Encoding, Vec2, Compression, Blocks, LineOrder, RoundingMode } from '../src/index.js';

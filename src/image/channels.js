@@ -1,44 +1,27 @@
-/**
- * Channel data structures for EXR images
- */
+// Channel data structures for EXR images
 
 import { Vec2, SampleType, bytesPerSample } from '../core/types.js';
 import { ChannelDescription, ChannelList } from '../meta/attributes.js';
 import { floatToHalf } from '../lib/half.js';
 
-/**
- * Flat sample storage (one value per pixel per channel)
- */
+// Flat sample storage (one value per pixel per channel)
 export class FlatSamples {
-  /**
-   * @param {string} sampleType
-   * @param {Float32Array|Uint32Array|Uint16Array} data
-   */
   constructor(sampleType, data) {
     this.sampleType = sampleType;
     this.data = data;
   }
 
-  /**
-   * Create F16 samples
-   * @param {Uint16Array} data - Half-precision data as raw bits
-   */
+  // Create F16 samples
   static f16(data) {
     return new FlatSamples(SampleType.F16, data);
   }
 
-  /**
-   * Create F32 samples
-   * @param {Float32Array} data
-   */
+  // Create F32 samples
   static f32(data) {
     return new FlatSamples(SampleType.F32, data);
   }
 
-  /**
-   * Create U32 samples
-   * @param {Uint32Array} data
-   */
+  // Create U32 samples
   static u32(data) {
     return new FlatSamples(SampleType.U32, data);
   }
@@ -47,20 +30,12 @@ export class FlatSamples {
     return this.data.length;
   }
 
-  /**
-   * Get value at index
-   * @param {number} index
-   * @returns {number}
-   */
+  // Get value at index
   valueAt(index) {
     return this.data[index];
   }
 
-  /**
-   * Get the raw bytes for a sample at the given index (little-endian)
-   * @param {number} index
-   * @returns {Uint8Array}
-   */
+  // Get the raw bytes for a sample at the given index (little-endian)
   getBytesAt(index) {
     const bytes = bytesPerSample(this.sampleType);
     const result = new Uint8Array(bytes);
@@ -82,16 +57,8 @@ export class FlatSamples {
   }
 }
 
-/**
- * Single channel with name and sample data
- */
+// Single channel with name and sample data
 export class AnyChannel {
-  /**
-   * @param {string} name
-   * @param {FlatSamples} samples
-   * @param {boolean} quantizeLinearly
-   * @param {Vec2} sampling
-   */
   constructor(name, samples, quantizeLinearly = null, sampling = new Vec2(1, 1)) {
     this.name = name;
     this.samples = samples;
@@ -99,56 +66,34 @@ export class AnyChannel {
     this.sampling = sampling;
   }
 
-  /**
-   * Get channel description
-   * @returns {ChannelDescription}
-   */
+  // Get channel description
   toDescription() {
     return new ChannelDescription(this.name, this.samples.sampleType, this.quantizeLinearly, this.sampling);
   }
 }
 
-/**
- * Dynamic channel collection
- */
+// Dynamic channel collection
 export class AnyChannels {
-  /**
-   * @param {AnyChannel[]} list
-   */
   constructor(list) {
     // Sort alphabetically
     this.list = [...list].sort((a, b) => a.name.localeCompare(b.name));
     this._channelMap = new Map(this.list.map((ch) => [ch.name, ch]));
   }
 
-  /**
-   * Get the channel list for metadata
-   * @returns {ChannelList}
-   */
+  // Get the channel list for metadata
   getChannelList() {
     return new ChannelList(this.list.map((ch) => ch.toDescription()));
   }
 
-  /**
-   * Get sample bytes for a channel at a pixel index
-   * @param {string} channelName
-   * @param {number} pixelIndex
-   * @returns {Uint8Array}
-   */
+  // Get sample bytes for a channel at a pixel index
   getSampleBytes(channelName, pixelIndex) {
     const channel = this._channelMap.get(channelName);
     return channel.samples.getBytesAt(pixelIndex);
   }
 }
 
-/**
- * Fixed channel configuration with pixel accessor
- */
+// Fixed channel configuration with pixel accessor
 export class SpecificChannels {
-  /**
-   * @param {ChannelDescription[]} channels - Channel descriptions in order
-   * @param {Function|Float32Array} pixels - Pixel accessor or interleaved data
-   */
   constructor(channels, pixels) {
     // Sort channels alphabetically for storage order
     this._originalChannels = channels;
@@ -157,11 +102,7 @@ export class SpecificChannels {
     this.pixels = pixels;
   }
 
-  /**
-   * Create RGB channels
-   * @param {Function|Float32Array} pixels - (pos) => [r, g, b] or interleaved Float32Array
-   * @param {string} sampleType
-   */
+  // Create RGB channels
   static rgb(pixels, sampleType = SampleType.F32) {
     return new SpecificChannels(
       [
@@ -173,11 +114,7 @@ export class SpecificChannels {
     );
   }
 
-  /**
-   * Create RGBA channels
-   * @param {Function|Float32Array} pixels - (pos) => [r, g, b, a] or interleaved Float32Array
-   * @param {string} sampleType
-   */
+  // Create RGBA channels
   static rgba(pixels, sampleType = SampleType.F32) {
     return new SpecificChannels(
       [
@@ -190,27 +127,17 @@ export class SpecificChannels {
     );
   }
 
-  /**
-   * Builder for custom channels
-   */
+  // Builder for custom channels
   static build() {
     return new SpecificChannelsBuilder();
   }
 
-  /**
-   * Get the channel list for metadata
-   * @returns {ChannelList}
-   */
+  // Get the channel list for metadata
   getChannelList() {
     return new ChannelList(this._sortedChannels);
   }
 
-  /**
-   * Get sample bytes for a channel at a pixel index
-   * @param {string} channelName
-   * @param {number} pixelIndex
-   * @returns {Uint8Array}
-   */
+  // Get sample bytes for a channel at a pixel index
   getSampleBytes(channelName, pixelIndex) {
     const channelIndex = this._channelIndices.get(channelName);
     const channelDesc = this._originalChannels[channelIndex];
@@ -248,39 +175,24 @@ export class SpecificChannels {
   }
 }
 
-/**
- * Builder for SpecificChannels
- */
+// Builder for SpecificChannels
 export class SpecificChannelsBuilder {
   constructor() {
     this._channels = [];
   }
 
-  /**
-   * Add a channel
-   * @param {string} name
-   * @param {string} sampleType
-   * @returns {SpecificChannelsBuilder}
-   */
+  // Add a channel
   withChannel(name, sampleType = SampleType.F32) {
     this._channels.push(ChannelDescription.named(name, sampleType));
     return this;
   }
 
-  /**
-   * Set pixel accessor and build
-   * @param {Function|Float32Array} pixels
-   * @returns {SpecificChannels}
-   */
+  // Set pixel accessor and build
   withPixels(pixels) {
     return new SpecificChannels(this._channels, pixels);
   }
 
-  /**
-   * Set pixel function and build
-   * @param {Function} fn - (pixelIndex) => [values...]
-   * @returns {SpecificChannels}
-   */
+  // Set pixel function and build
   withPixelFn(fn) {
     return new SpecificChannels(this._channels, fn);
   }

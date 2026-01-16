@@ -1,6 +1,4 @@
-/**
- * Simple test to write an uncompressed EXR file
- */
+// Simple test to write an uncompressed EXR file
 
 import { test, expect } from 'vitest';
 import { writeRgbaFile, Image, Layer, SpecificChannels, Encoding, Vec2 } from '../src/index.js';

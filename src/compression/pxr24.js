@@ -1,28 +1,20 @@
-/**
- * PXR24 compression for EXR
- *
- * Developed by Pixar Animation Studios. Lossy compression for F32 data
- * (converted to 24 bits), but lossless for F16 and U32 data.
- *
- * Algorithm:
- * 1. Convert F32 values to 24-bit (lossy rounding of significand)
- * 2. Apply delta encoding (difference from previous pixel per channel row)
- * 3. Transpose bytes (group all MSBs together, then second bytes, etc.)
- * 4. Compress with zlib
- *
- * In browser environments without pako, compression will fail.
- */
+// PXR24 compression for EXR
+// Developed by Pixar Animation Studios. Lossy compression for F32 data
+// (converted to 24 bits), but lossless for F16 and U32 data.
+// Algorithm:
+// 1. Convert F32 values to 24-bit (lossy rounding of significand)
+// 2. Apply delta encoding (difference from previous pixel per channel row)
+// 3. Transpose bytes (group all MSBs together, then second bytes, etc.)
+// 4. Compress with zlib
+// In browser environments without pako, compression will fail.
 
 import { SampleType } from '../core/types.js';
 import { getZlib } from '../io/zlib.js';
 
-/**
- * Convert 32-bit float to 24-bit representation
- * This is a lossy conversion that rounds the mantissa from 23 bits to 15 bits.
- *
- * @param {number} float - F32 value
- * @returns {number} - 24-bit representation as u32
- */
+// Convert 32-bit float to 24-bit representation
+// This is a lossy conversion that rounds the mantissa from 23 bits to 15 bits.
+// @param {number} float - F32 value
+// @returns {number} - 24-bit representation as u32
 export function f32ToF24(float) {
   // Get the bit pattern of the float
   const buffer = new ArrayBuffer(4);
@@ -61,13 +53,10 @@ export function f32ToF24(float) {
   return (sign >>> 8) | result;
 }
 
-/**
- * Convert 24-bit representation back to 32-bit float
- * Simply shift left by 8 bits.
- *
- * @param {number} f24 - 24-bit representation
- * @returns {number} - F32 value
- */
+// Convert 24-bit representation back to 32-bit float
+// Simply shift left by 8 bits.
+// @param {number} f24 - 24-bit representation
+// @returns {number} - F32 value
 export function f24ToF32(f24) {
   const buffer = new ArrayBuffer(4);
   const uintView = new Uint32Array(buffer);
@@ -76,15 +65,12 @@ export function f24ToF32(f24) {
   return floatView[0];
 }
 
-/**
- * Compress data using PXR24
- *
- * @param {Uint8Array} data - Uncompressed pixel data (native endian, per-scanline channel order)
- * @param {Array<{name: string, sampleType: number}>} channels - Channel descriptions
- * @param {number} width - Block width in pixels
- * @param {number} height - Block height in scanlines
- * @returns {Uint8Array} - Compressed data
- */
+// Compress data using PXR24
+// @param {Uint8Array} data - Uncompressed pixel data (native endian, per-scanline channel order)
+// @param {Array<{name: string, sampleType: number}>} channels - Channel descriptions
+// @param {number} width - Block width in pixels
+// @param {number} height - Block height in scanlines
+// @returns {Uint8Array} - Compressed data
 export function compressPXR24(data, channels, width, height) {
   if (data.length === 0) {
     return new Uint8Array(0);
@@ -200,16 +186,13 @@ export function compressPXR24(data, channels, width, height) {
   return new Uint8Array(compressed);
 }
 
-/**
- * Decompress PXR24 data
- *
- * @param {Uint8Array} compressed - Compressed data
- * @param {Array<{name: string, sampleType: number}>} channels - Channel descriptions
- * @param {number} width - Block width in pixels
- * @param {number} height - Block height in scanlines
- * @param {number} expectedSize - Expected uncompressed size
- * @returns {Uint8Array} - Decompressed data
- */
+// Decompress PXR24 data
+// @param {Uint8Array} compressed - Compressed data
+// @param {Array<{name: string, sampleType: number}>} channels - Channel descriptions
+// @param {number} width - Block width in pixels
+// @param {number} height - Block height in scanlines
+// @param {number} expectedSize - Expected uncompressed size
+// @returns {Uint8Array} - Decompressed data
 export function decompressPXR24(compressed, channels, width, height, expectedSize) {
   const zlib = getZlib();
   if (!zlib) {

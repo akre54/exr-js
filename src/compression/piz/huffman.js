@@ -1,9 +1,6 @@
-/**
- * 16-bit Huffman compression and decompression for PIZ
- *
- * Huffman compression and decompression routines written
- * by Christian Rouet for his PIZ image file format.
- */
+// 16-bit Huffman compression and decompression for PIZ
+// Huffman compression and decompression routines written
+// by Christian Rouet for his PIZ image file format.
 
 const ENCODE_BITS = 16; // literal (value) bit length
 const DECODE_BITS = 14; // decoding bit size (>= 8)
@@ -17,30 +14,23 @@ const LONG_ZEROCODE_RUN = 63;
 const SHORTEST_LONG_RUN = 2 + LONG_ZEROCODE_RUN - SHORT_ZEROCODE_RUN;
 const LONGEST_LONG_RUN = 255 + SHORTEST_LONG_RUN;
 
-/**
- * Get the code length from an encoding table entry
- * @param {number} code
- * @returns {number}
- */
+// Get the code length from an encoding table entry
+// @param {number} code
+// @returns {number}
 function codeLength(code) {
   return code & 63;
 }
 
-/**
- * Get the Huffman code from an encoding table entry
- * @param {number} code
- * @returns {number}
- */
+// Get the Huffman code from an encoding table entry
+// @param {number} code
+// @returns {number}
 function codeValue(code) {
   return code >>> 6;
 }
 
-/**
- * Compress u16 data using Huffman coding
- *
- * @param {Uint16Array} uncompressed - Data to compress
- * @returns {Uint8Array} - Compressed data
- */
+// Compress u16 data using Huffman coding
+// @param {Uint16Array} uncompressed - Data to compress
+// @returns {Uint8Array} - Compressed data
 export function huffmanCompress(uncompressed) {
   if (uncompressed.length === 0) {
     return new Uint8Array(0);
@@ -95,13 +85,10 @@ export function huffmanCompress(uncompressed) {
   return new Uint8Array(output);
 }
 
-/**
- * Decompress Huffman-coded data
- *
- * @param {Uint8Array} compressed - Compressed data
- * @param {number} expectedSize - Expected number of u16 values
- * @returns {Uint16Array} - Decompressed data
- */
+// Decompress Huffman-coded data
+// @param {Uint8Array} compressed - Compressed data
+// @param {number} expectedSize - Expected number of u16 values
+// @returns {Uint16Array} - Decompressed data
 export function huffmanDecompress(compressed, expectedSize) {
   if (compressed.length === 0) {
     return new Uint16Array(0);
@@ -153,9 +140,7 @@ export function huffmanDecompress(compressed, expectedSize) {
   return result;
 }
 
-/**
- * Write a little-endian u32 to an array
- */
+// Write a little-endian u32 to an array
 function writeU32LE(arr, offset, value) {
   arr[offset] = value & 0xff;
   arr[offset + 1] = (value >>> 8) & 0xff;
@@ -163,9 +148,7 @@ function writeU32LE(arr, offset, value) {
   arr[offset + 3] = (value >>> 24) & 0xff;
 }
 
-/**
- * Read a little-endian u32 from a buffer
- */
+// Read a little-endian u32 from a buffer
 function readU32LE(buf, offset) {
   return (
     buf[offset] |
@@ -175,9 +158,7 @@ function readU32LE(buf, offset) {
   ) >>> 0;
 }
 
-/**
- * Build a canonical Huffman encoding table from frequency counts
- */
+// Build a canonical Huffman encoding table from frequency counts
 function buildEncodingTable(frequencies) {
   // Find min and max non-zero indices
   let minCodeIndex = frequencies.findIndex((f) => f !== 0);
@@ -261,9 +242,7 @@ function buildEncodingTable(frequencies) {
   return { minCodeIndex, maxCodeIndex };
 }
 
-/**
- * Build canonical Huffman code table
- */
+// Build canonical Huffman code table
 function buildCanonicalTable(codeTable) {
   const countPerCode = new Array(59).fill(0);
 
@@ -291,9 +270,7 @@ function buildCanonicalTable(codeTable) {
   }
 }
 
-/**
- * Pack encoding table with run-length compression of zeros
- */
+// Pack encoding table with run-length compression of zeros
 function packEncodingTable(frequencies, minIndex, maxIndex, output) {
   let codeBits = 0;
   let codeBitCount = 0;
@@ -351,9 +328,7 @@ function packEncodingTable(frequencies, minIndex, maxIndex, output) {
   delete output._codeBitCount;
 }
 
-/**
- * Helper to write bits to output
- */
+// Helper to write bits to output
 function writeBits(count, bits, output, state) {
   let codeBits = state.codeBits;
   let codeBitCount = state.codeBitCount;
@@ -370,9 +345,7 @@ function writeBits(count, bits, output, state) {
   output._codeBitCount = codeBitCount;
 }
 
-/**
- * Encode data using the frequency table
- */
+// Encode data using the frequency table
 function encodeWithFrequencies(frequencies, uncompressed, runLengthCode, output) {
   let codeBits = 0;
   let codeBitCount = 0;
@@ -426,9 +399,7 @@ function encodeWithFrequencies(frequencies, uncompressed, runLengthCode, output)
   return dataLength * 8 + codeBitCount;
 }
 
-/**
- * Send a code with optional run-length encoding
- */
+// Send a code with optional run-length encoding
 function sendCode(sCode, runCount, runCode, output, state) {
   const sLen = codeLength(sCode);
   const runLen = codeLength(runCode);
@@ -445,16 +416,12 @@ function sendCode(sCode, runCount, runCode, output, state) {
   }
 }
 
-/**
- * Write a Huffman code
- */
+// Write a Huffman code
 function writeCode(sCode, output, state) {
   writeBits(codeLength(sCode), codeValue(sCode), output, state);
 }
 
-/**
- * Read encoding table from compressed data
- */
+// Read encoding table from compressed data
 function readEncodingTable(data, startOffset, minCodeIndex, maxCodeIndex) {
   const encodingTable = new Array(ENCODING_TABLE_SIZE).fill(0);
 
@@ -503,9 +470,7 @@ function readEncodingTable(data, startOffset, minCodeIndex, maxCodeIndex) {
   return { encodingTable, bytesRead: offset - startOffset };
 }
 
-/**
- * Build decoding table from encoding table
- */
+// Build decoding table from encoding table
 function buildDecodingTable(encodingTable, minCodeIndex, maxCodeIndex) {
   // Decoding table entry types:
   // { type: 'empty' }
@@ -557,9 +522,7 @@ function buildDecodingTable(encodingTable, minCodeIndex, maxCodeIndex) {
   return decodingTable;
 }
 
-/**
- * Decode data using encoding and decoding tables
- */
+// Decode data using encoding and decoding tables
 function decodeWithTables(
   encodingTable,
   decodingTable,
@@ -692,9 +655,7 @@ function decodeWithTables(
   return output;
 }
 
-/**
- * Read a decoded code into the output array
- */
+// Read a decoded code into the output array
 function readCodeIntoArray(
   code,
   runLengthCode,

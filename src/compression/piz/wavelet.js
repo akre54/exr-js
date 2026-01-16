@@ -1,35 +1,27 @@
-/**
- * Haar wavelet encoding and decoding for PIZ compression
- *
- * The wavelet transform operates on 2D data, processing pixels in a
- * hierarchical manner. Each level processes pairs of values:
- * - Encode: (a, b) -> (average, difference)
- * - Decode: (avg, diff) -> (a, b)
- *
- * Two modes are supported:
- * - 14-bit: For values < 16384 (faster, simpler math)
- * - 16-bit: For full 16-bit values (requires modular arithmetic)
- */
+// Haar wavelet encoding and decoding for PIZ compression
+// The wavelet transform operates on 2D data, processing pixels in a
+// hierarchical manner. Each level processes pairs of values:
+// - Encode: (a, b) -> (average, difference)
+// - Decode: (avg, diff) -> (a, b)
+// Two modes are supported:
+// - 14-bit: For values < 16384 (faster, simpler math)
+// - 16-bit: For full 16-bit values (requires modular arithmetic)
 
 const BIT_COUNT = 16;
 const OFFSET = 1 << (BIT_COUNT - 1); // 32768
 const MOD_MASK = (1 << BIT_COUNT) - 1; // 65535
 
-/**
- * Check if a value fits in 14 bits
- * @param {number} value
- * @returns {boolean}
- */
+// Check if a value fits in 14 bits
+// @param {number} value
+// @returns {boolean}
 function is14Bit(value) {
   return value < (1 << 14);
 }
 
-/**
- * 14-bit encoding: simple average and difference
- * @param {number} a
- * @param {number} b
- * @returns {[number, number]} [average, difference]
- */
+// 14-bit encoding: simple average and difference
+// @param {number} a
+// @param {number} b
+// @returns {[number, number]} [average, difference]
 function encode14bit(a, b) {
   // Convert to signed for arithmetic
   const as = a > 32767 ? a - 65536 : a;
@@ -42,12 +34,10 @@ function encode14bit(a, b) {
   return [(m & 0xffff), (d & 0xffff)];
 }
 
-/**
- * 14-bit decoding
- * @param {number} l - low (average)
- * @param {number} h - high (difference)
- * @returns {[number, number]} [a, b]
- */
+// 14-bit decoding
+// @param {number} l - low (average)
+// @param {number} h - high (difference)
+// @returns {[number, number]} [a, b]
 function decode14bit(l, h) {
   // Convert to signed
   const ls = l > 32767 ? l - 65536 : l;
@@ -62,12 +52,10 @@ function decode14bit(l, h) {
   return [(a & 0xffff), (b & 0xffff)];
 }
 
-/**
- * 16-bit encoding with modular arithmetic
- * @param {number} a
- * @param {number} b
- * @returns {[number, number]} [average, difference]
- */
+// 16-bit encoding with modular arithmetic
+// @param {number} a
+// @param {number} b
+// @returns {[number, number]} [average, difference]
 function encode16bit(a, b) {
   const aOffset = (a + OFFSET) & MOD_MASK;
   let m = (aOffset + b) >> 1;
@@ -81,12 +69,10 @@ function encode16bit(a, b) {
   return [m, d];
 }
 
-/**
- * 16-bit decoding with modular arithmetic
- * @param {number} l - low (average)
- * @param {number} h - high (difference)
- * @returns {[number, number]} [a, b]
- */
+// 16-bit decoding with modular arithmetic
+// @param {number} l - low (average)
+// @param {number} h - high (difference)
+// @returns {[number, number]} [a, b]
 function decode16bit(l, h) {
   const m = l;
   const d = h;
@@ -97,16 +83,13 @@ function decode16bit(l, h) {
   return [a, b];
 }
 
-/**
- * Encode (compress) a 2D buffer with Haar wavelet transform
- *
- * @param {Uint16Array} buffer - Data to transform (modified in place)
- * @param {number} countX - Width
- * @param {number} countY - Height
- * @param {number} offsetX - X stride (usually 1 for single channel, or samples_per_pixel for interleaved)
- * @param {number} offsetY - Y stride (usually width * samples_per_pixel)
- * @param {number} maxValue - Maximum value in buffer (determines 14-bit vs 16-bit mode)
- */
+// Encode (compress) a 2D buffer with Haar wavelet transform
+// @param {Uint16Array} buffer - Data to transform (modified in place)
+// @param {number} countX - Width
+// @param {number} countY - Height
+// @param {number} offsetX - X stride (usually 1 for single channel, or samples_per_pixel for interleaved)
+// @param {number} offsetY - Y stride (usually width * samples_per_pixel)
+// @param {number} maxValue - Maximum value in buffer (determines 14-bit vs 16-bit mode)
 export function waveletEncode(buffer, countX, countY, offsetX, offsetY, maxValue) {
   const count = Math.min(countX, countY);
   const encode = is14Bit(maxValue) ? encode14bit : encode16bit;
@@ -177,16 +160,13 @@ export function waveletEncode(buffer, countX, countY, offsetX, offsetY, maxValue
   }
 }
 
-/**
- * Decode (decompress) a 2D buffer with inverse Haar wavelet transform
- *
- * @param {Uint16Array} buffer - Data to transform (modified in place)
- * @param {number} countX - Width
- * @param {number} countY - Height
- * @param {number} offsetX - X stride
- * @param {number} offsetY - Y stride
- * @param {number} maxValue - Maximum value (determines 14-bit vs 16-bit mode)
- */
+// Decode (decompress) a 2D buffer with inverse Haar wavelet transform
+// @param {Uint16Array} buffer - Data to transform (modified in place)
+// @param {number} countX - Width
+// @param {number} countY - Height
+// @param {number} offsetX - X stride
+// @param {number} offsetY - Y stride
+// @param {number} maxValue - Maximum value (determines 14-bit vs 16-bit mode)
 export function waveletDecode(buffer, countX, countY, offsetX, offsetY, maxValue) {
   const count = Math.min(countX, countY);
   const decode = is14Bit(maxValue) ? decode14bit : decode16bit;
