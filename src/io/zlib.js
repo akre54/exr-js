@@ -6,19 +6,30 @@
  */
 
 import { isNode } from './platform.js';
+import { createRequire } from 'module';
 
 let _zlib = null;
+let _initialized = false;
 
-// Eagerly initialize in Node.js using top-level await
-if (isNode) {
-  try {
-    const nodeZlib = await import('zlib');
-    _zlib = {
-      deflate: (data, level) => nodeZlib.deflateSync(Buffer.from(data), { level }),
-      inflate: (data) => nodeZlib.inflateSync(Buffer.from(data))
-    };
-  } catch (e) {
-    // zlib not available
+/**
+ * Initialize Node.js zlib module synchronously using require
+ */
+function initNodeZlib() {
+  if (_initialized) return;
+  _initialized = true;
+
+  if (isNode) {
+    try {
+      // Use createRequire to load zlib synchronously in ES modules
+      const require = createRequire(import.meta.url);
+      const nodeZlib = require('zlib');
+      _zlib = {
+        deflate: (data, level) => nodeZlib.deflateSync(Buffer.from(data), { level }),
+        inflate: (data) => nodeZlib.inflateSync(Buffer.from(data))
+      };
+    } catch (e) {
+      // zlib not available
+    }
   }
 }
 
@@ -29,6 +40,11 @@ if (isNode) {
  * @returns {{ deflate: (data: Uint8Array, level: number) => Uint8Array, inflate: (data: Uint8Array) => Uint8Array } | null}
  */
 export function getZlib() {
+  // Initialize Node.js zlib if needed
+  if (!_initialized) {
+    initNodeZlib();
+  }
+
   // Return cached Node.js zlib if available
   if (_zlib) return _zlib;
 
