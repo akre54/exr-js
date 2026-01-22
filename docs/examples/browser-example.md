@@ -1,6 +1,6 @@
 # Browser Usage
 
-Complete guide for using exr-js in web browsers.
+Complete guide for using exrjs in web browsers.
 
 ## Basic Setup
 
@@ -17,7 +17,7 @@ Complete guide for using exr-js in web browsers.
   <canvas id="preview" width="512" height="512"></canvas>
 
   <script type="module">
-    import { writeRgbaFile } from './path/to/exr-js/dist/exr-js.browser.js';
+    import { writeRgbaFile } from './path/to/exrjs/dist/exrjs.browser.js';
 
     document.getElementById('generate').addEventListener('click', async () => {
       const width = 512;
@@ -52,7 +52,7 @@ Complete guide for using exr-js in web browsers.
 
 ```javascript
 // main.js
-import { EXRWriter, Compression } from 'exr-js';
+import { EXRWriter, Compression } from 'exrjs';
 
 async function generateEXR() {
   const width = 512;
@@ -91,7 +91,7 @@ document.getElementById('btn').addEventListener('click', generateEXR);
 Export canvas content as EXR:
 
 ```javascript
-import { writeRgbaFile } from 'exr-js';
+import { writeRgbaFile } from 'exrjs';
 
 async function canvasToEXR(canvas, filename) {
   const ctx = canvas.getContext('2d');
@@ -125,7 +125,7 @@ await canvasToEXR(canvas, 'canvas-export.exr');
 Export WebGL framebuffer as EXR:
 
 ```javascript
-import { writeRgbaFile, Encoding, Compression, Blocks, LineOrder } from 'exr-js';
+import { writeRgbaFile, Encoding, Compression, Blocks, LineOrder } from 'exrjs';
 
 async function webglToEXR(gl, width, height, filename) {
   // Read pixels from WebGL context
@@ -171,7 +171,7 @@ Export Three.js render as EXR:
 
 ```javascript
 import * as THREE from 'three';
-import { writeRgbaFile } from 'exr-js';
+import { writeRgbaFile } from 'exrjs';
 
 class EXRExporter {
   constructor(renderer) {
@@ -229,7 +229,7 @@ Export multiple render targets:
 
 ```javascript
 import * as THREE from 'three';
-import { EXRWriter, Compression, SampleType } from 'exr-js';
+import { EXRWriter, Compression, SampleType } from 'exrjs';
 
 async function exportMultiPass(renderer, scene, camera, width, height) {
   // Setup render targets
@@ -343,7 +343,7 @@ npm install pako
 
 ```javascript
 // Your bundler will include pako automatically
-import { EXRWriter, Compression } from 'exr-js';
+import { EXRWriter, Compression } from 'exrjs';
 
 // ZIP compression will work in browser
 writer.addLayer('beauty')
@@ -355,7 +355,7 @@ writer.addLayer('beauty')
 ### Fallback Without Pako
 
 ```javascript
-import { EXRWriter, Compression } from 'exr-js';
+import { EXRWriter, Compression } from 'exrjs';
 
 try {
   const writer = new EXRWriter(width, height);
@@ -391,7 +391,7 @@ try {
 Show progress for large images:
 
 ```javascript
-import { EXRWriter, Compression } from 'exr-js';
+import { EXRWriter, Compression } from 'exrjs';
 
 async function generateWithProgress(width, height, onProgress) {
   const totalPixels = width * height;
@@ -429,7 +429,7 @@ Offload EXR generation to a worker:
 
 ```javascript
 // worker.js
-import { EXRWriter, Compression } from 'exr-js';
+import { EXRWriter, Compression } from 'exrjs';
 
 self.onmessage = async (e) => {
   const { width, height, pixelData } = e.data;
@@ -484,7 +484,7 @@ URL.revokeObjectURL(url);
 
 ## Browser Compatibility
 
-exr-js works in all modern browsers that support:
+exrjs works in all modern browsers that support:
 
 - ES6 modules
 - TypedArrays (Float32Array, Uint32Array, etc.)

@@ -1,6 +1,6 @@
-// Public API for exr-js
+// Public API for exrjs
 
-import { Vec2, IntegerBounds, SampleType, Compression, LineOrder, Blocks } from '../core/types.js';
+import { Vec2, IntegerBounds, SampleType, LineOrder, Blocks } from '../core/types.js';
 import { Image } from '../image/image.js';
 import { Layer } from '../image/layer.js';
 import { SpecificChannels, AnyChannels, AnyChannel, FlatSamples } from '../image/channels.js';

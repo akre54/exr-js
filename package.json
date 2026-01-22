@@ -1,17 +1,17 @@
 {
-  "name": "exr-js",
+  "name": "exrjs",
   "version": "0.1.0",
   "description": "JavaScript library for writing OpenEXR images with multi-part support and AOVs",
   "type": "module",
-  "main": "dist/exr-js.cjs",
-  "module": "dist/exr-js.esm.js",
-  "browser": "dist/exr-js.browser.js",
+  "main": "dist/exrjs.cjs",
+  "module": "dist/exrjs.esm.js",
+  "browser": "dist/exrjs.browser.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/exr-js.esm.js",
-      "require": "./dist/exr-js.cjs",
-      "browser": "./dist/exr-js.browser.js",
+      "import": "./dist/exrjs.esm.js",
+      "require": "./dist/exrjs.cjs",
+      "browser": "./dist/exrjs.browser.js",
       "types": "./dist/index.d.ts"
     }
   },

@@ -12,20 +12,20 @@ export default [
     output: [
       // ESM build
       {
-        file: 'dist/exr-js.esm.js',
+        file: 'dist/exrjs.esm.js',
         format: 'es',
         sourcemap: true,
       },
       // CJS build
       {
-        file: 'dist/exr-js.cjs',
+        file: 'dist/exrjs.cjs',
         format: 'cjs',
         sourcemap: true,
         exports: 'named',
       },
       // Browser build (bundled, minified)
       {
-        file: 'dist/exr-js.browser.js',
+        file: 'dist/exrjs.browser.js',
         format: 'iife',
         name: 'exrjs',
         sourcemap: true,

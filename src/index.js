@@ -1,7 +1,7 @@
-// exr-js - JavaScript library for reading and writing OpenEXR images
+// exrjs - JavaScript library for reading and writing OpenEXR images
 // @example Simple RGBA export
 // ```javascript
-// import { writeRgbaFile } from 'exr-js';
+// import { writeRgbaFile } from 'exrjs';
 // await writeRgbaFile('output.exr', 1920, 1080, (index) => {
 //   const x = index % 1920;
 //   const y = Math.floor(index / 1920);
@@ -10,7 +10,7 @@
 // ```
 // @example Reading an EXR file
 // ```javascript
-// import { readRgbaFile, EXRReader } from 'exr-js';
+// import { readRgbaFile, EXRReader } from 'exrjs';
 // // Simple API
 // const { width, height, pixels } = await readRgbaFile('image.exr');
 // // Advanced API
@@ -20,7 +20,7 @@
 // ```
 // @example Multi-layer render passes
 // ```javascript
-// import { EXRWriter, Compression } from 'exr-js';
+// import { EXRWriter, Compression } from 'exrjs';
 // const writer = new EXRWriter(1920, 1080);
 // writer.addLayer('beauty')
 //   .rgba(beautyPixels)

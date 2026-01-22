@@ -1,6 +1,6 @@
 # API Reference
 
-Complete API documentation for exr-js.
+Complete API documentation for exrjs.
 
 ## Table of Contents
 
@@ -39,7 +39,7 @@ async function writeRgbaFile(
 
 **Example:**
 ```javascript
-import { writeRgbaFile, Encoding, Compression } from 'exr-js';
+import { writeRgbaFile, Encoding, Compression } from 'exrjs';
 
 // With callback
 await writeRgbaFile('output.exr', 512, 512, (index) => {

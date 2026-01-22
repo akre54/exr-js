@@ -8,9 +8,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = join(__dirname, '..');
 
 const requiredFiles = [
-  'dist/exr-js.cjs',
-  'dist/exr-js.esm.js',
-  'dist/exr-js.browser.js',
+  'dist/exrjs.cjs',
+  'dist/exrjs.esm.js',
+  'dist/exrjs.browser.js',
   'dist/index.d.ts',
 ];
 
