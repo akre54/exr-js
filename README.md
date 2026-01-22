@@ -1,4 +1,4 @@
-# exr-js
+# exrjs
 
 A modern JavaScript library for writing OpenEXR images with multi-part support, render passes (AOVs), and advanced compression.
 
@@ -15,7 +15,7 @@ A modern JavaScript library for writing OpenEXR images with multi-part support, 
 ## Installation
 
 ```bash
-npm install exr-js
+npm install exrjs
 ```
 
 For browser usage with ZIP/PXR24 compression, include [pako](https://github.com/nodeca/pako):
@@ -30,7 +30,7 @@ For browser usage with ZIP/PXR24 compression, include [pako](https://github.com/
 ### Simple RGBA Image
 
 ```javascript
-import { writeRgbaFile } from 'exr-js';
+import { writeRgbaFile } from 'exrjs';
 
 // Write a simple gradient
 await writeRgbaFile('output.exr', 512, 512, (index) => {
@@ -43,7 +43,7 @@ await writeRgbaFile('output.exr', 512, 512, (index) => {
 ### Multi-layer Render Passes
 
 ```javascript
-import { EXRWriter, Compression, SampleType } from 'exr-js';
+import { EXRWriter, Compression, SampleType } from 'exrjs';
 
 const writer = new EXRWriter(1920, 1080);
 
@@ -109,7 +109,7 @@ await writer.write('output.exr');
 For complete control, use the low-level API:
 
 ```javascript
-import { Image, Layer, SpecificChannels, Encoding } from 'exr-js';
+import { Image, Layer, SpecificChannels, Encoding } from 'exrjs';
 
 const channels = SpecificChannels.rgba(pixels);
 const image = Image.fromChannels(
@@ -157,7 +157,7 @@ Quick recommendation: Use `Compression.PIZ` for beauty passes and `Compression.Z
 ### Mip Maps
 
 ```javascript
-import { Blocks, LevelMode, RoundingMode } from 'exr-js';
+import { Blocks, LevelMode, RoundingMode } from 'exrjs';
 
 // Automatic mip map generation
 const encoding = new Encoding(
@@ -172,7 +172,7 @@ const encoding = new Encoding(
 The library works in browsers with automatic fallbacks:
 
 ```javascript
-import { EXRWriter } from 'exr-js';
+import { EXRWriter } from 'exrjs';
 
 const writer = new EXRWriter(512, 512);
 writer.addLayer('beauty').rgba(pixels).end();
@@ -201,7 +201,7 @@ See the `docs/examples/` directory for complete examples:
 
 - [basic-usage.md](docs/examples/basic-usage.md) - Simple images and common patterns
 - [render-passes.md](docs/examples/render-passes.md) - Multi-layer EXR for VFX/rendering
-- [browser-example.md](docs/examples/browser-example.md) - Using exr-js in web applications
+- [browser-example.md](docs/examples/browser-example.md) - Using exrjs in web applications
 - [advanced.md](docs/examples/advanced.md) - Mip maps, custom channels, low-level API
 
 ## Performance Tips

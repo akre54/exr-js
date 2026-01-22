@@ -16,7 +16,7 @@ import {
   LineOrder,
   LevelMode,
   RoundingMode
-} from 'exr-js';
+} from 'exrjs';
 
 const width = 1024;
 const height = 1024;
@@ -57,7 +57,7 @@ import {
   LineOrder,
   LevelMode,
   RoundingMode
-} from 'exr-js';
+} from 'exrjs';
 
 const encoding = new Encoding(
   Compression.PIZ,
@@ -96,7 +96,7 @@ import {
   Vec2,
   Encoding,
   LayerAttributes
-} from 'exr-js';
+} from 'exrjs';
 
 const width = 512;
 const height = 512;
@@ -160,7 +160,7 @@ import {
   LineOrder,
   SampleType,
   LayerAttributes
-} from 'exr-js';
+} from 'exrjs';
 
 const width = 1024;
 const height = 1024;
@@ -201,7 +201,7 @@ await image.write().toFile('depth_only.exr');
 Use callbacks for lazy evaluation of large images:
 
 ```javascript
-import { EXRWriter, Compression } from 'exr-js';
+import { EXRWriter, Compression } from 'exrjs';
 
 const width = 8192;
 const height = 8192;
@@ -254,7 +254,7 @@ import {
   Encoding,
   Image,
   LayerAttributes
-} from 'exr-js';
+} from 'exrjs';
 
 const width = 512;
 const height = 512;
@@ -305,7 +305,7 @@ import {
   Encoding,
   ImageAttributes,
   LayerAttributes
-} from 'exr-js';
+} from 'exrjs';
 
 const width = 512;
 const height = 512;
@@ -342,7 +342,7 @@ await image.write().toFile('offset_window.exr');
 Different tiling approaches for different use cases:
 
 ```javascript
-import { EXRWriter, Compression, Encoding, Blocks, Vec2, LineOrder } from 'exr-js';
+import { EXRWriter, Compression, Encoding, Blocks, Vec2, LineOrder } from 'exrjs';
 
 const writer = new EXRWriter(4096, 4096);
 
@@ -384,7 +384,7 @@ import {
   Compression,
   Blocks,
   LineOrder
-} from 'exr-js';
+} from 'exrjs';
 
 const width = 16384;
 const height = 16384;
@@ -421,7 +421,7 @@ await image.write().toFile('huge_image.exr');
 Different compression per channel (via separate layers):
 
 ```javascript
-import { EXRWriter, Compression, SampleType } from 'exr-js';
+import { EXRWriter, Compression, SampleType } from 'exrjs';
 
 const writer = new EXRWriter(width, height);
 
@@ -459,7 +459,7 @@ await writer.write('optimized.exr');
 Choose line order for your access pattern:
 
 ```javascript
-import { Encoding, Compression, Blocks, LineOrder } from 'exr-js';
+import { Encoding, Compression, Blocks, LineOrder } from 'exrjs';
 
 // Top-to-bottom (default, most compatible)
 const increasingOrder = new Encoding(
@@ -485,10 +485,10 @@ const unspecifiedOrder = new Encoding(
 
 ## Image Metadata
 
-While exr-js focuses on writing pixel data, you can specify layer attributes:
+While exrjs focuses on writing pixel data, you can specify layer attributes:
 
 ```javascript
-import { Layer, SpecificChannels, Vec2, Encoding, IntegerBounds, LayerAttributes } from 'exr-js';
+import { Layer, SpecificChannels, Vec2, Encoding, IntegerBounds, LayerAttributes } from 'exrjs';
 
 const width = 512;
 const height = 512;
@@ -510,7 +510,7 @@ const layer = new Layer(
 Generate multiple EXR files efficiently:
 
 ```javascript
-import { EXRWriter, Compression } from 'exr-js';
+import { EXRWriter, Compression } from 'exrjs';
 
 async function batchGenerate(frames) {
   for (let i = 0; i < frames; i++) {
@@ -549,7 +549,7 @@ await batchGenerate(120); // 2 seconds at 60fps
 Validate your EXR files:
 
 ```javascript
-import { writeRgbaFile } from 'exr-js';
+import { writeRgbaFile } from 'exrjs';
 import { execSync } from 'child_process';
 
 async function generateAndValidate() {
@@ -580,7 +580,7 @@ await generateAndValidate();
 Monitor generation performance:
 
 ```javascript
-import { EXRWriter, Compression } from 'exr-js';
+import { EXRWriter, Compression } from 'exrjs';
 
 async function generateWithTiming(width, height) {
   const startTime = performance.now();

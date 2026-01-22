@@ -1,13 +1,13 @@
 # Basic Usage Examples
 
-This guide covers common use cases for exr-js.
+This guide covers common use cases for exrjs.
 
 ## Simple Gradient Image
 
 Create a basic RGB gradient image:
 
 ```javascript
-import { writeRgbFile } from 'exr-js';
+import { writeRgbFile } from 'exrjs';
 
 const width = 512;
 const height = 512;
@@ -28,7 +28,7 @@ await writeRgbFile('gradient.exr', width, height, (index) => {
 Create an image with a single color:
 
 ```javascript
-import { writeRgbaFile } from 'exr-js';
+import { writeRgbaFile } from 'exrjs';
 
 // Pure red image
 await writeRgbaFile('red.exr', 256, 256, () => [1, 0, 0, 1]);
@@ -42,7 +42,7 @@ await writeRgbaFile('gray.exr', 256, 256, () => [0.5, 0.5, 0.5, 1]);
 For better performance with large images, use typed arrays:
 
 ```javascript
-import { writeRgbaFile } from 'exr-js';
+import { writeRgbaFile } from 'exrjs';
 
 const width = 1920;
 const height = 1080;
@@ -68,7 +68,7 @@ await writeRgbaFile('checker.exr', width, height, pixels);
 ### Checkerboard
 
 ```javascript
-import { writeRgbFile } from 'exr-js';
+import { writeRgbFile } from 'exrjs';
 
 const size = 512;
 const checkSize = 32;
@@ -84,7 +84,7 @@ await writeRgbFile('checkerboard.exr', size, size, (index) => {
 ### Radial Gradient
 
 ```javascript
-import { writeRgbaFile } from 'exr-js';
+import { writeRgbaFile } from 'exrjs';
 
 const size = 512;
 const center = size / 2;
@@ -104,7 +104,7 @@ await writeRgbaFile('radial.exr', size, size, (index) => {
 ### Circle
 
 ```javascript
-import { writeRgbaFile } from 'exr-js';
+import { writeRgbaFile } from 'exrjs';
 
 const size = 512;
 const center = size / 2;
@@ -126,7 +126,7 @@ await writeRgbaFile('circle.exr', size, size, (index) => {
 ### Fastest Writing (No Compression)
 
 ```javascript
-import { writeRgbaFile, Encoding, Compression } from 'exr-js';
+import { writeRgbaFile, Encoding, Compression } from 'exrjs';
 
 const encoding = new Encoding(Compression.NONE, Blocks.ScanLines, LineOrder.Increasing);
 await writeRgbaFile('fast.exr', width, height, pixels, encoding);
@@ -135,7 +135,7 @@ await writeRgbaFile('fast.exr', width, height, pixels, encoding);
 ### Best Compression
 
 ```javascript
-import { writeRgbaFile, Encoding, Compression, Blocks, LineOrder } from 'exr-js';
+import { writeRgbaFile, Encoding, Compression, Blocks, LineOrder } from 'exrjs';
 
 const encoding = new Encoding(Compression.PIZ, Blocks.ScanLines, LineOrder.Increasing);
 await writeRgbaFile('small.exr', width, height, pixels, encoding);
@@ -144,7 +144,7 @@ await writeRgbaFile('small.exr', width, height, pixels, encoding);
 ### Balanced (Recommended)
 
 ```javascript
-import { writeRgbaFile, Encoding } from 'exr-js';
+import { writeRgbaFile, Encoding } from 'exrjs';
 
 // Uses ZIP16 compression by default
 await writeRgbaFile('output.exr', width, height, pixels, Encoding.FAST_LOSSLESS);
@@ -155,7 +155,7 @@ await writeRgbaFile('output.exr', width, height, pixels, Encoding.FAST_LOSSLESS)
 Create images with high dynamic range values:
 
 ```javascript
-import { writeRgbFile } from 'exr-js';
+import { writeRgbFile } from 'exrjs';
 
 const width = 512;
 const height = 512;
@@ -183,7 +183,7 @@ await writeRgbFile('hdr.exr', width, height, (index) => {
 ### Half Precision (F16) for Memory Efficiency
 
 ```javascript
-import { EXRWriter, SampleType } from 'exr-js';
+import { EXRWriter, SampleType } from 'exrjs';
 
 const writer = new EXRWriter(512, 512);
 
@@ -209,7 +209,7 @@ writer.addLayer('main')
 Use tiled storage for random access or mip maps:
 
 ```javascript
-import { EXRWriter, Compression } from 'exr-js';
+import { EXRWriter, Compression } from 'exrjs';
 
 const writer = new EXRWriter(1024, 1024);
 
@@ -227,7 +227,7 @@ await writer.write('tiled.exr');
 Calculate pixel coordinates from flat index:
 
 ```javascript
-import { writeRgbaFile } from 'exr-js';
+import { writeRgbaFile } from 'exrjs';
 
 const width = 512;
 const height = 512;
@@ -249,7 +249,7 @@ await writeRgbaFile('indexed.exr', width, height, (index) => {
 Create a binary alpha mask:
 
 ```javascript
-import { writeRgbaFile } from 'exr-js';
+import { writeRgbaFile } from 'exrjs';
 
 const size = 512;
 
@@ -269,7 +269,7 @@ await writeRgbaFile('mask.exr', size, size, (index) => {
 ## Perlin-like Noise Pattern
 
 ```javascript
-import { writeRgbFile } from 'exr-js';
+import { writeRgbFile } from 'exrjs';
 
 // Simple hash-based noise
 function noise(x, y) {
@@ -292,7 +292,7 @@ await writeRgbFile('noise.exr', size, size, (index) => {
 Convert color temperature (Kelvin) to RGB:
 
 ```javascript
-import { writeRgbFile } from 'exr-js';
+import { writeRgbFile } from 'exrjs';
 
 function kelvinToRGB(kelvin) {
   const temp = kelvin / 100;

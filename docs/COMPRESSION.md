@@ -1,13 +1,13 @@
 # Compression Guide
 
-Comprehensive guide to compression methods in exr-js.
+Comprehensive guide to compression methods in exrjs.
 
 ## Overview
 
 OpenEXR supports 8 compression methods, each with different trade-offs between file size, compression speed, and image quality.
 
 ```javascript
-import { Compression } from 'exr-js';
+import { Compression } from 'exrjs';
 
 Compression.NONE    // No compression
 Compression.RLE     // Run-length encoding
@@ -52,7 +52,7 @@ No compression applied. Maximum write speed, largest files.
 
 **Example:**
 ```javascript
-import { writeRgbaFile, Encoding, Compression, Blocks, LineOrder } from 'exr-js';
+import { writeRgbaFile, Encoding, Compression, Blocks, LineOrder } from 'exrjs';
 
 const encoding = new Encoding(Compression.NONE, Blocks.ScanLines, LineOrder.Increasing);
 await writeRgbaFile('uncompressed.exr', width, height, pixels, encoding);
@@ -88,7 +88,7 @@ Simple compression that encodes runs of identical bytes.
 
 **Example:**
 ```javascript
-import { EXRWriter, Compression, SampleType } from 'exr-js';
+import { EXRWriter, Compression, SampleType } from 'exrjs';
 
 const writer = new EXRWriter(width, height);
 
@@ -133,7 +133,7 @@ Standard zlib compression applied to each scanline independently.
 
 **Example:**
 ```javascript
-import { EXRWriter, Compression } from 'exr-js';
+import { EXRWriter, Compression } from 'exrjs';
 
 const writer = new EXRWriter(512, 512);
 
@@ -175,13 +175,13 @@ Zlib compression applied to groups of 16 scanlines.
 
 **Example:**
 ```javascript
-import { writeRgbaFile, Encoding } from 'exr-js';
+import { writeRgbaFile, Encoding } from 'exrjs';
 
 // ZIP16 is the default in FAST_LOSSLESS
 await writeRgbaFile('output.exr', width, height, pixels, Encoding.FAST_LOSSLESS);
 
 // Or explicitly
-import { Compression, Blocks, LineOrder } from 'exr-js';
+import { Compression, Blocks, LineOrder } from 'exrjs';
 const encoding = new Encoding(Compression.ZIP16, Blocks.ScanLines, LineOrder.Increasing);
 await writeRgbaFile('output.exr', width, height, pixels, encoding);
 ```
@@ -224,7 +224,7 @@ Advanced compression using Haar wavelet transform and Huffman coding.
 
 **Example:**
 ```javascript
-import { EXRWriter, Compression, SampleType } from 'exr-js';
+import { EXRWriter, Compression, SampleType } from 'exrjs';
 
 const writer = new EXRWriter(1920, 1080);
 
@@ -280,7 +280,7 @@ Converts 32-bit floats to 24-bit representation, then applies zlib.
 
 **Example:**
 ```javascript
-import { EXRWriter, Compression, SampleType } from 'exr-js';
+import { EXRWriter, Compression, SampleType } from 'exrjs';
 
 const writer = new EXRWriter(width, height);
 
@@ -345,7 +345,7 @@ Fixed-rate compression for half-float (F16) images.
 
 **Example:**
 ```javascript
-import { EXRWriter, Compression, SampleType } from 'exr-js';
+import { EXRWriter, Compression, SampleType } from 'exrjs';
 
 const writer = new EXRWriter(1920, 1080);
 
@@ -390,7 +390,7 @@ B44 with improved handling of flat (constant value) areas.
 
 **Example:**
 ```javascript
-import { EXRWriter, Compression, SampleType } from 'exr-js';
+import { EXRWriter, Compression, SampleType } from 'exrjs';
 
 const writer = new EXRWriter(1920, 1080);
 
@@ -586,7 +586,7 @@ npm install pako
 
 **Fallback handling:**
 ```javascript
-import { EXRWriter, Compression } from 'exr-js';
+import { EXRWriter, Compression } from 'exrjs';
 
 let compression = Compression.ZIP16;
 
@@ -637,4 +637,4 @@ writer.addLayer('beauty')
 
 - [OpenEXR Technical Introduction](http://www.openexr.com/documentation.html)
 - [OpenEXR File Layout](http://www.openexr.com/InterpretingDeepPixels.pdf)
-- Study the exr-js test files for real-world examples
+- Study the exrjs test files for real-world examples

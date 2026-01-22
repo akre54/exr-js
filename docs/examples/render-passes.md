@@ -7,7 +7,7 @@ Guide for creating multi-layer EXR files with render passes (Arbitrary Output Va
 Create an EXR with multiple render passes:
 
 ```javascript
-import { EXRWriter, Compression, SampleType } from 'exr-js';
+import { EXRWriter, Compression, SampleType } from 'exrjs';
 
 const width = 1920;
 const height = 1080;
@@ -40,7 +40,7 @@ await writer.write('render_passes.exr');
 ### Beauty + Normals + Depth
 
 ```javascript
-import { EXRWriter, Compression, SampleType } from 'exr-js';
+import { EXRWriter, Compression, SampleType } from 'exrjs';
 
 const writer = new EXRWriter(width, height);
 
@@ -85,7 +85,7 @@ await writer.write('scene.exr');
 Complete render pass setup for VFX/compositing:
 
 ```javascript
-import { EXRWriter, Compression, SampleType } from 'exr-js';
+import { EXRWriter, Compression, SampleType } from 'exrjs';
 
 const width = 2048;
 const height = 1556;
@@ -220,7 +220,7 @@ await writer.write('full_render.exr');
 Separate passes for individual lights:
 
 ```javascript
-import { EXRWriter, Compression } from 'exr-js';
+import { EXRWriter, Compression } from 'exrjs';
 
 const lights = ['keyLight', 'fillLight', 'rimLight', 'envLight'];
 
@@ -250,7 +250,7 @@ await writer.write('per_light.exr');
 Store motion vectors for motion blur or temporal effects:
 
 ```javascript
-import { EXRWriter, Compression, SampleType } from 'exr-js';
+import { EXRWriter, Compression, SampleType } from 'exrjs';
 
 const writer = new EXRWriter(width, height);
 
@@ -280,7 +280,7 @@ await writer.write('with_motion.exr');
 Store Cryptomatte data for object selection:
 
 ```javascript
-import { EXRWriter, Compression, SampleType } from 'exr-js';
+import { EXRWriter, Compression, SampleType } from 'exrjs';
 
 const writer = new EXRWriter(width, height);
 
@@ -318,7 +318,7 @@ await writer.write('cryptomatte.exr');
 AOVs commonly used by AI denoisers:
 
 ```javascript
-import { EXRWriter, Compression, SampleType } from 'exr-js';
+import { EXRWriter, Compression, SampleType } from 'exrjs';
 
 const writer = new EXRWriter(width, height);
 
@@ -355,7 +355,7 @@ await writer.write('for_denoising.exr');
 Typical passes from a real-time renderer:
 
 ```javascript
-import { EXRWriter, Compression, SampleType } from 'exr-js';
+import { EXRWriter, Compression, SampleType } from 'exrjs';
 
 const writer = new EXRWriter(1920, 1080);
 
