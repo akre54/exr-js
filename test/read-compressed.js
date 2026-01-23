@@ -1,34 +1,35 @@
 // Tests for reading EXR files with various compression methods
 
 import { test, expect } from 'vitest';
-import { readRgbaFile, EXRReader, Compression } from '../src/index.js';
+import { decodeRgba, EXRReader, Compression } from '../src/index.js';
+import { readFileSync } from 'fs';
 
-test('read uncompressed EXR', async () => {
-  const result = await readRgbaFile('test/outputs/test-uncompressed.exr');
+test('read uncompressed EXR', () => {
+  const result = decodeRgba(readFileSync('test/outputs/test-uncompressed.exr'));
   expect(result.width).toBe(128);
   expect(result.height).toBe(128);
   expect(result.pixels.length).toBe(128 * 128 * 4);
   expect(result.compression).toBe(Compression.Uncompressed);
 });
 
-test('read RLE compressed EXR', async () => {
-  const result = await readRgbaFile('test/outputs/test-rle.exr');
+test('read RLE compressed EXR', () => {
+  const result = decodeRgba(readFileSync('test/outputs/test-rle.exr'));
   expect(result.width).toBe(128);
   expect(result.height).toBe(128);
   expect(result.pixels.length).toBe(128 * 128 * 4);
   expect(result.compression).toBe(Compression.RLE);
 });
 
-test('read ZIP1 compressed EXR', async () => {
-  const result = await readRgbaFile('test/outputs/test-zip1.exr');
+test('read ZIP1 compressed EXR', () => {
+  const result = decodeRgba(readFileSync('test/outputs/test-zip1.exr'));
   expect(result.width).toBe(128);
   expect(result.height).toBe(128);
   expect(result.pixels.length).toBe(128 * 128 * 4);
   expect(result.compression).toBe(Compression.ZIP1);
 });
 
-test('read ZIP16 compressed EXR', async () => {
-  const result = await readRgbaFile('test/outputs/test-zip16.exr');
+test('read ZIP16 compressed EXR', () => {
+  const result = decodeRgba(readFileSync('test/outputs/test-zip16.exr'));
   expect(result.width).toBe(128);
   expect(result.height).toBe(128);
   expect(result.pixels.length).toBe(128 * 128 * 4);
@@ -36,32 +37,32 @@ test('read ZIP16 compressed EXR', async () => {
 });
 
 // TODO: PIZ decompression has size calculation issues - needs investigation
-test.skip('read PIZ compressed EXR', async () => {
-  const result = await readRgbaFile('test/outputs/test-piz.exr');
+test.skip('read PIZ compressed EXR', () => {
+  const result = decodeRgba(readFileSync('test/outputs/test-piz.exr'));
   expect(result.width).toBe(128);
   expect(result.height).toBe(128);
   expect(result.pixels.length).toBe(128 * 128 * 4);
   expect(result.compression).toBe(Compression.PIZ);
 });
 
-test('read PXR24 compressed EXR', async () => {
-  const result = await readRgbaFile('test/outputs/test-pxr24.exr');
+test('read PXR24 compressed EXR', () => {
+  const result = decodeRgba(readFileSync('test/outputs/test-pxr24.exr'));
   expect(result.width).toBe(128);
   expect(result.height).toBe(128);
   expect(result.pixels.length).toBe(128 * 128 * 4);
   expect(result.compression).toBe(Compression.PXR24);
 });
 
-test('read B44 compressed EXR', async () => {
-  const result = await readRgbaFile('test/outputs/test-b44.exr');
+test('read B44 compressed EXR', () => {
+  const result = decodeRgba(readFileSync('test/outputs/test-b44.exr'));
   expect(result.width).toBe(128);
   expect(result.height).toBe(128);
   expect(result.pixels.length).toBe(128 * 128 * 4);
   expect(result.compression).toBe(Compression.B44);
 });
 
-test('read B44A compressed EXR', async () => {
-  const result = await readRgbaFile('test/outputs/test-b44a.exr');
+test('read B44A compressed EXR', () => {
+  const result = decodeRgba(readFileSync('test/outputs/test-b44a.exr'));
   expect(result.width).toBe(128);
   expect(result.height).toBe(128);
   expect(result.pixels.length).toBe(128 * 128 * 4);
@@ -69,8 +70,8 @@ test('read B44A compressed EXR', async () => {
 });
 
 // TODO: PIZ decompression has size calculation issues - needs investigation
-test.skip('read simple PIZ file and verify pixel values', async () => {
-  const result = await readRgbaFile('test/outputs/test-simple-rgba-piz.exr');
+test.skip('read simple PIZ file and verify pixel values', () => {
+  const result = decodeRgba(readFileSync('test/outputs/test-simple-rgba-piz.exr'));
   expect(result.width).toBe(256);
   expect(result.height).toBe(256);
 

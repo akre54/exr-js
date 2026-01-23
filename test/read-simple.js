@@ -1,11 +1,11 @@
 // Simple tests for reading EXR files
 
 import { test, expect } from 'vitest';
-import { readRgbaFile, readRgbFile, EXRReader } from '../src/index.js';
+import { decodeRgba, decodeRgb, EXRReader } from '../src/index.js';
 import { readFileSync } from 'fs';
 
-test('read simple uncompressed EXR file', async () => {
-  const result = await readRgbaFile('test/outputs/test-output.exr');
+test('read simple uncompressed EXR file', () => {
+  const result = decodeRgba(readFileSync('test/outputs/test-output.exr'));
 
   expect(result.width).toBe(64);
   expect(result.height).toBe(64);
@@ -25,8 +25,8 @@ test('read simple uncompressed EXR file', async () => {
   expect(result.pixels[lastPixel + 1]).toBeCloseTo(63 / 64, 2); // G
 });
 
-test('read EXR with EXRReader class', async () => {
-  const reader = await EXRReader.fromFile('test/outputs/test-output.exr');
+test('read EXR with EXRReader class', () => {
+  const reader = new EXRReader(readFileSync('test/outputs/test-output.exr'));
 
   expect(reader.getWidth()).toBe(64);
   expect(reader.getHeight()).toBe(64);
@@ -46,17 +46,17 @@ test('read EXR with EXRReader class', async () => {
   expect(rgba.length).toBe(64 * 64 * 4);
 });
 
-test('read EXR from ArrayBuffer', async () => {
+test('read EXR from ArrayBuffer', () => {
   const buffer = readFileSync('test/outputs/test-output.exr');
-  const result = await readRgbaFile(buffer);
+  const result = decodeRgba(buffer);
 
   expect(result.width).toBe(64);
   expect(result.height).toBe(64);
   expect(result.pixels.length).toBe(64 * 64 * 4);
 });
 
-test('read RGB-only file', async () => {
-  const result = await readRgbFile('test/outputs/test-simple-rgb.exr');
+test('read RGB-only file', () => {
+  const result = decodeRgb(readFileSync('test/outputs/test-simple-rgb.exr'));
 
   expect(result.width).toBe(256);
   expect(result.height).toBe(256);
@@ -64,8 +64,8 @@ test('read RGB-only file', async () => {
   expect(result.pixels.length).toBe(256 * 256 * 3); // RGB only
 });
 
-test('EXRReader metadata access', async () => {
-  const reader = await EXRReader.fromFile('test/outputs/test-output.exr');
+test('EXRReader metadata access', () => {
+  const reader = new EXRReader(readFileSync('test/outputs/test-output.exr'));
 
   expect(reader.getDataWindow()).toBeDefined();
   expect(reader.getDataWindow().size.x).toBe(64);

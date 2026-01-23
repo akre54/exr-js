@@ -2,8 +2,13 @@
 // Uses Node.js zlib in Node environments, pako in browsers.
 // Handles module loading properly to avoid browser compatibility issues.
 
-import { isNode } from './platform.js';
 import { createRequire } from 'module';
+
+// Detect Node.js environment
+const isNode =
+  typeof process !== 'undefined' &&
+  process.versions != null &&
+  process.versions.node != null;
 
 let _zlib = null;
 let _initialized = false;

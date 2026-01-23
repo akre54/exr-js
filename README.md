@@ -1,16 +1,17 @@
 # exrjs
 
-A modern JavaScript library for writing OpenEXR images with multi-part support, render passes (AOVs), and advanced compression.
+A modern JavaScript library for reading and writing OpenEXR images with multi-part support, render passes (AOVs), and advanced compression.
 
 ## Features
 
-- **Multi-layer support** - Write complex EXR files with multiple render passes
+- **Read and write EXR** - Full encode/decode support for OpenEXR files
+- **Multi-layer support** - Complex EXR files with multiple render passes
 - **All compression methods** - NONE, RLE, ZIP1, ZIP16, PIZ, PXR24, B44, B44A
 - **Tiled and scanline storage** - Flexible image organization
 - **Mip maps and rip maps** - Automatic generation of multi-resolution images
 - **High dynamic range** - Full support for F16, F32, and U32 sample types
 - **Browser and Node.js** - Works in both environments
-- **Simple API** - Easy to use for common cases, powerful for advanced needs
+- **Zero I/O dependencies** - Returns raw bytes; you handle file I/O
 
 ## Installation
 
@@ -18,32 +19,43 @@ A modern JavaScript library for writing OpenEXR images with multi-part support, 
 npm install exrjs
 ```
 
-For browser usage with ZIP/PXR24 compression, include [pako](https://github.com/nodeca/pako):
-
-```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
-<script type="module" src="your-app.js"></script>
-```
-
 ## Quick Start
 
-### Simple RGBA Image
+### Encode RGBA Image
 
 ```javascript
-import { writeRgbaFile } from 'exrjs';
+import { encodeRgba } from 'exrjs';
+import { writeFileSync } from 'fs';
 
-// Write a simple gradient
-await writeRgbaFile('output.exr', 512, 512, (index) => {
+// Encode a simple gradient
+const buffer = encodeRgba(512, 512, (index) => {
   const x = index % 512;
   const y = Math.floor(index / 512);
   return [x / 512, y / 512, 0.5, 1.0]; // [R, G, B, A]
 });
+
+// Write to file (you handle I/O)
+writeFileSync('output.exr', new Uint8Array(buffer));
+```
+
+### Decode EXR Image
+
+```javascript
+import { decodeRgba } from 'exrjs';
+import { readFileSync } from 'fs';
+
+// Read file and decode
+const fileData = readFileSync('image.exr');
+const { width, height, pixels } = decodeRgba(fileData);
+
+console.log(`Image: ${width}x${height}, ${pixels.length} values`);
 ```
 
 ### Multi-layer Render Passes
 
 ```javascript
 import { EXRWriter, Compression, SampleType } from 'exrjs';
+import { writeFileSync } from 'fs';
 
 const writer = new EXRWriter(1920, 1080);
 
@@ -66,21 +78,28 @@ writer.addLayer('depth')
   .compression(Compression.PXR24)
   .end();
 
-await writer.write('render.exr');
+const buffer = writer.encode();
+writeFileSync('render.exr', new Uint8Array(buffer));
 ```
 
 ## API Overview
 
 ### Simple API
 
-For basic use cases, use the convenience functions:
+For basic use cases:
 
 ```javascript
-// Write RGBA image
-await writeRgbaFile(path, width, height, pixels, encoding);
+// Encode RGBA image to ArrayBuffer
+const buffer = encodeRgba(width, height, pixels, encoding);
 
-// Write RGB image
-await writeRgbFile(path, width, height, pixels, encoding);
+// Encode RGB image to ArrayBuffer
+const buffer = encodeRgb(width, height, pixels, encoding);
+
+// Decode EXR to RGBA pixel data
+const { width, height, pixels } = decodeRgba(buffer);
+
+// Decode EXR to RGB pixel data
+const { width, height, pixels } = decodeRgb(buffer);
 ```
 
 The `pixels` parameter can be:
@@ -89,7 +108,7 @@ The `pixels` parameter can be:
 
 ### Builder API
 
-For render passes and complex images, use the builder:
+For render passes and complex images:
 
 ```javascript
 const writer = new EXRWriter(width, height);
@@ -101,15 +120,34 @@ writer.addLayer('layerName')
   .sampleType(SampleType.F16)
   .end();
 
-await writer.write('output.exr');
+const buffer = writer.encode();
+```
+
+### Reader API
+
+For detailed access to EXR contents:
+
+```javascript
+import { EXRReader } from 'exrjs';
+import { readFileSync } from 'fs';
+
+const reader = new EXRReader(readFileSync('multipass.exr'));
+
+// Get metadata
+console.log(`Layers: ${reader.getLayerCount()}`);
+console.log(`Names: ${reader.getLayerNames()}`);
+
+// Read specific layers
+const beauty = reader.readRgba(0);      // First layer as RGBA
+const depth = reader.readChannel('Z', 1); // Z channel from second layer
 ```
 
 ### Advanced API
 
-For complete control, use the low-level API:
+For complete control:
 
 ```javascript
-import { Image, Layer, SpecificChannels, Encoding } from 'exrjs';
+import { Image, Layer, SpecificChannels, Encoding, Vec2 } from 'exrjs';
 
 const channels = SpecificChannels.rgba(pixels);
 const image = Image.fromChannels(
@@ -118,7 +156,7 @@ const image = Image.fromChannels(
   Encoding.FAST_LOSSLESS
 );
 
-await image.write().toFile('output.exr');
+const buffer = image.write().toArrayBuffer();
 ```
 
 ## Compression Methods
@@ -138,7 +176,7 @@ Quick recommendation: Use `Compression.PIZ` for beauty passes and `Compression.Z
 
 ## Sample Types
 
-- **F16** (half float) - 16-bit, range ±65504, ~3 decimal digits
+- **F16** (half float) - 16-bit, range +/-65504, ~3 decimal digits
 - **F32** (float) - 32-bit, standard floating point
 - **U32** (unsigned int) - 32-bit integers (0 to 4,294,967,295)
 
@@ -157,7 +195,7 @@ Quick recommendation: Use `Compression.PIZ` for beauty passes and `Compression.Z
 ### Mip Maps
 
 ```javascript
-import { Blocks, LevelMode, RoundingMode } from 'exrjs';
+import { Blocks, LevelMode, RoundingMode, Vec2 } from 'exrjs';
 
 // Automatic mip map generation
 const encoding = new Encoding(
@@ -169,40 +207,35 @@ const encoding = new Encoding(
 
 ## Browser Usage
 
-The library works in browsers with automatic fallbacks:
+The library works in browsers. All functions return `ArrayBuffer` - you handle downloads:
 
 ```javascript
-import { EXRWriter } from 'exrjs';
+import { encodeRgba, decodeRgba } from 'exrjs';
 
-const writer = new EXRWriter(512, 512);
-writer.addLayer('beauty').rgba(pixels).end();
+// Encode an image
+const buffer = encodeRgba(512, 512, pixels);
 
-// Get as ArrayBuffer
-const buffer = await writer.write();
-
-// Download file
+// Download as file
 const blob = new Blob([buffer], { type: 'application/octet-stream' });
 const url = URL.createObjectURL(blob);
 const a = document.createElement('a');
 a.href = url;
 a.download = 'render.exr';
 a.click();
+URL.revokeObjectURL(url);
+
+// Decode an uploaded file
+fileInput.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  const buffer = await file.arrayBuffer();
+  const { width, height, pixels } = decodeRgba(buffer);
+  // Use the pixel data...
+});
 ```
 
-Note: Some compression methods require `pako` for browser environments. Install it for full compression support:
+## Demo
 
-```bash
-npm install pako
-```
-
-## Examples
-
-See the `docs/examples/` directory for complete examples:
-
-- [basic-usage.md](docs/examples/basic-usage.md) - Simple images and common patterns
-- [render-passes.md](docs/examples/render-passes.md) - Multi-layer EXR for VFX/rendering
-- [browser-example.md](docs/examples/browser-example.md) - Using exrjs in web applications
-- [advanced.md](docs/examples/advanced.md) - Mip maps, custom channels, low-level API
+Try the interactive demo: [https://your-username.github.io/exrjs/](https://your-username.github.io/exrjs/)
 
 ## Performance Tips
 
@@ -211,19 +244,13 @@ See the `docs/examples/` directory for complete examples:
 3. **Sample types**: F16 uses half the memory of F32; use U32 for integer data
 4. **Avoid unnecessary conversions**: Pass Float32Array directly instead of callbacks when possible
 
-## Limitations
-
-- Write-only (reading not implemented)
-- Deep images not supported
-- Some advanced EXR features not implemented (multi-view, time sampling, etc.)
-
 ## License
 
 MIT
 
 ## Contributing
 
-Issues and pull requests welcome! This is a port of the Rust `exrs` library to JavaScript.
+Issues and pull requests welcome!
 
 ## Credits
 

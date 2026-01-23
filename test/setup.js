@@ -2,9 +2,9 @@
 // This ensures read tests have the files they need regardless of test execution order
 
 import { writeFileSync, existsSync, mkdirSync } from 'fs';
-import { Image, SpecificChannels, Encoding, Vec2, Compression, Blocks, LineOrder, writeRgbFile } from '../src/index.js';
+import { Image, SpecificChannels, Encoding, Vec2, Compression, Blocks, LineOrder, encodeRgb } from '../src/index.js';
 
-export default async function setup() {
+export default function setup() {
   // Ensure output directory exists
   if (!existsSync('test/outputs')) {
     mkdirSync('test/outputs', { recursive: true });
@@ -17,7 +17,7 @@ export default async function setup() {
   generateCompressedFiles();
 
   // Generate test-simple-rgb.exr (256x256 RGB) - used by read-simple.js
-  await generateRgbFile();
+  generateRgbFile();
 }
 
 function generateTestOutput() {
@@ -77,11 +77,11 @@ function generateCompressedFiles() {
   }
 }
 
-async function generateRgbFile() {
+function generateRgbFile() {
   const width = 256;
   const height = 256;
 
-  const buffer = await writeRgbFile(null, width, height, (index) => {
+  const buffer = encodeRgb(width, height, (index) => {
     const x = index % width;
     const y = Math.floor(index / width);
     return [x / width, y / height, 0.5];

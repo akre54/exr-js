@@ -2,12 +2,11 @@
 // Simple functions and EXRReader class for reading EXR files.
 
 import { BinaryReader } from '../io/binary-reader.js';
-import { readFromFile } from '../io/platform.js';
 import { readMeta, calculateChunkCount, readOffsetTable } from '../meta/read-header.js';
 import { readLayerPixels, channelsToRgba, channelsToRgb } from '../block/read-block.js';
 
-// Result from reading an EXR file
-// @typedef {Object} EXRReadResult
+// Result from decoding an EXR buffer
+// @typedef {Object} EXRDecodeResult
 // @property {number} width - Image width in pixels
 // @property {number} height - Image height in pixels
 // @property {Float32Array} pixels - Interleaved pixel data (RGBA or RGB)
@@ -16,19 +15,24 @@ import { readLayerPixels, channelsToRgba, channelsToRgb } from '../block/read-bl
 // @property {number} compression - Compression method used
 // @property {Map<string, any>} attributes - Custom attributes
 
-// Read an EXR file and return RGBA pixel data
-// @param {string|ArrayBuffer|Uint8Array} input - File path (Node.js) or buffer
-// @returns {Promise<EXRReadResult>}
+// Resolve input to ArrayBuffer
+// @param {ArrayBuffer|Uint8Array} input
+// @returns {ArrayBuffer}
+function toArrayBuffer(input) {
+  if (input instanceof Uint8Array) {
+    return input.buffer.slice(input.byteOffset, input.byteOffset + input.byteLength);
+  }
+  return input;
+}
+
+// Decode an EXR buffer and return RGBA pixel data
+// @param {ArrayBuffer|Uint8Array} buffer - EXR file data
+// @returns {EXRDecodeResult}
 // @example
-// // Node.js
-// const { width, height, pixels } = await readRgbaFile('image.exr');
-// @example
-// // Browser
-// const buffer = await fetch('image.exr').then(r => r.arrayBuffer());
-// const { width, height, pixels } = await readRgbaFile(buffer);
-export async function readRgbaFile(input) {
-  const buffer = await resolveInput(input);
-  const reader = new EXRReader(buffer);
+// const buffer = fs.readFileSync('image.exr');
+// const { width, height, pixels } = decodeRgba(buffer);
+export function decodeRgba(buffer) {
+  const reader = new EXRReader(toArrayBuffer(buffer));
 
   const width = reader.getWidth();
   const height = reader.getHeight();
@@ -45,12 +49,11 @@ export async function readRgbaFile(input) {
   };
 }
 
-// Read an EXR file and return RGB pixel data (no alpha)
-// @param {string|ArrayBuffer|Uint8Array} input - File path (Node.js) or buffer
-// @returns {Promise<EXRReadResult>}
-export async function readRgbFile(input) {
-  const buffer = await resolveInput(input);
-  const reader = new EXRReader(buffer);
+// Decode an EXR buffer and return RGB pixel data (no alpha)
+// @param {ArrayBuffer|Uint8Array} buffer - EXR file data
+// @returns {EXRDecodeResult}
+export function decodeRgb(buffer) {
+  const reader = new EXRReader(toArrayBuffer(buffer));
 
   const width = reader.getWidth();
   const height = reader.getHeight();
@@ -65,19 +68,6 @@ export async function readRgbFile(input) {
     compression: reader.getCompression(),
     attributes: reader.getAttributes(),
   };
-}
-
-// Resolve input to ArrayBuffer
-// @param {string|ArrayBuffer|Uint8Array} input
-// @returns {Promise<ArrayBuffer>}
-async function resolveInput(input) {
-  if (typeof input === 'string') {
-    return await readFromFile(input);
-  }
-  if (input instanceof Uint8Array) {
-    return input.buffer.slice(input.byteOffset, input.byteOffset + input.byteLength);
-  }
-  return input;
 }
 
 // EXR Reader class for detailed access to EXR file contents
@@ -97,14 +87,6 @@ export class EXRReader {
       const offsets = readOffsetTable(this._reader, chunkCount);
       this._offsetTables.push(offsets);
     }
-  }
-
-  // Create an EXRReader from a file path (Node.js only)
-// @param {string} path
-// @returns {Promise<EXRReader>}
-  static async fromFile(path) {
-    const buffer = await readFromFile(path);
-    return new EXRReader(buffer);
   }
 
   // Create an EXRReader from an ArrayBuffer

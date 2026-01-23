@@ -1,26 +1,31 @@
 // exrjs - JavaScript library for reading and writing OpenEXR images
-// @example Simple RGBA export
+// @example Simple RGBA encoding
 // ```javascript
-// import { writeRgbaFile } from 'exrjs';
-// await writeRgbaFile('output.exr', 1920, 1080, (index) => {
+// import { encodeRgba } from 'exrjs';
+// import { writeFileSync } from 'fs';
+// const buffer = encodeRgba(1920, 1080, (index) => {
 //   const x = index % 1920;
 //   const y = Math.floor(index / 1920);
 //   return [x / 1920, y / 1080, 0.5, 1.0]; // RGBA
 // });
+// writeFileSync('output.exr', new Uint8Array(buffer));
 // ```
 // @example Reading an EXR file
 // ```javascript
-// import { readRgbaFile, EXRReader } from 'exrjs';
+// import { decodeRgba, EXRReader } from 'exrjs';
+// import { readFileSync } from 'fs';
 // // Simple API
-// const { width, height, pixels } = await readRgbaFile('image.exr');
+// const fileData = readFileSync('image.exr');
+// const { width, height, pixels } = decodeRgba(fileData);
 // // Advanced API
-// const reader = await EXRReader.fromFile('multipass.exr');
+// const reader = new EXRReader(readFileSync('multipass.exr'));
 // const beauty = reader.readRgba(0);
 // const depth = reader.readChannel('Z', 1);
 // ```
 // @example Multi-layer render passes
 // ```javascript
 // import { EXRWriter, Compression } from 'exrjs';
+// import { writeFileSync } from 'fs';
 // const writer = new EXRWriter(1920, 1080);
 // writer.addLayer('beauty')
 //   .rgba(beautyPixels)
@@ -29,20 +34,21 @@
 // writer.addLayer('depth')
 //   .channel('Z', 'f32', depthPixels)
 //   .end();
-// await writer.write('render.exr');
+// const buffer = writer.encode();
+// writeFileSync('render.exr', new Uint8Array(buffer));
 // ```
 
 // Main API - Writing
 export {
-  writeRgbaFile,
-  writeRgbFile,
+  encodeRgba,
+  encodeRgb,
   EXRWriter,
 } from './api/index.js';
 
 // Main API - Reading
 export {
-  readRgbaFile,
-  readRgbFile,
+  decodeRgba,
+  decodeRgb,
   EXRReader,
 } from './api/read.js';
 

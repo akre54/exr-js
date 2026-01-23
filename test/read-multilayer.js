@@ -2,9 +2,10 @@
 
 import { test, expect } from 'vitest';
 import { EXRReader } from '../src/index.js';
+import { readFileSync } from 'fs';
 
-test('read multi-layer EXR', async () => {
-  const reader = await EXRReader.fromFile('test/outputs/test-multilayer.exr');
+test('read multi-layer EXR', () => {
+  const reader = new EXRReader(readFileSync('test/outputs/test-multilayer.exr'));
 
   // Check layer count
   expect(reader.getLayerCount()).toBe(3);
@@ -16,8 +17,8 @@ test('read multi-layer EXR', async () => {
   expect(layerNames).toContain('depth');
 });
 
-test('read channels from multi-layer EXR', async () => {
-  const reader = await EXRReader.fromFile('test/outputs/test-multilayer.exr');
+test('read channels from multi-layer EXR', () => {
+  const reader = new EXRReader(readFileSync('test/outputs/test-multilayer.exr'));
 
   // Read first layer (beauty)
   const beautyChannels = reader.getChannelNames(0);
@@ -37,8 +38,8 @@ test('read channels from multi-layer EXR', async () => {
   expect(depthChannels).toContain('Z');
 });
 
-test('read pixel data from multi-layer EXR', async () => {
-  const reader = await EXRReader.fromFile('test/outputs/test-multilayer.exr');
+test('read pixel data from multi-layer EXR', () => {
+  const reader = new EXRReader(readFileSync('test/outputs/test-multilayer.exr'));
 
   const width = reader.getWidth(0);
   const height = reader.getHeight(0);
@@ -58,8 +59,8 @@ test('read pixel data from multi-layer EXR', async () => {
   expect(depthChannel.length).toBe(width * height);
 });
 
-test('read multi-layer EXR with builder', async () => {
-  const reader = await EXRReader.fromFile('test/outputs/test-builder-multilayer.exr');
+test('read multi-layer EXR with builder', () => {
+  const reader = new EXRReader(readFileSync('test/outputs/test-builder-multilayer.exr'));
 
   // File has 4 layers: beauty, normal, depth, objectId
   expect(reader.getLayerCount()).toBe(4);
