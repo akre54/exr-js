@@ -40,17 +40,17 @@
 
 // Main API - Writing
 export {
-  encodeRgba,
-  encodeRgb,
   EXRWriter,
-} from './api/index.js';
+  encodeRgb,
+  encodeRgba,
+} from './api/index.js'
 
 // Main API - Reading
 export {
-  decodeRgba,
   decodeRgb,
+  decodeRgba,
   EXRReader,
-} from './api/read.js';
+} from './api/read.js'
 
 // Core types
 export {

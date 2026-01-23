@@ -1,9 +1,17 @@
 // High-level EXR Reading API
 // Simple functions and EXRReader class for reading EXR files.
 
-import { BinaryReader } from '../io/binary-reader.js';
-import { readMeta, calculateChunkCount, readOffsetTable } from '../meta/read-header.js';
-import { readLayerPixels, channelsToRgba, channelsToRgb } from '../block/read-block.js';
+import {
+  channelsToRgb,
+  channelsToRgba,
+  readLayerPixels,
+} from '../block/read-block.js'
+import { BinaryReader } from '../io/binary-reader.js'
+import {
+  calculateChunkCount,
+  readMeta,
+  readOffsetTable,
+} from '../meta/read-header.js'
 
 // Result from decoding an EXR buffer
 // @typedef {Object} EXRDecodeResult
@@ -20,9 +28,12 @@ import { readLayerPixels, channelsToRgba, channelsToRgb } from '../block/read-bl
 // @returns {ArrayBuffer}
 function toArrayBuffer(input) {
   if (input instanceof Uint8Array) {
-    return input.buffer.slice(input.byteOffset, input.byteOffset + input.byteLength);
+    return input.buffer.slice(
+      input.byteOffset,
+      input.byteOffset + input.byteLength,
+    )
   }
-  return input;
+  return input
 }
 
 // Decode an EXR buffer and return RGBA pixel data
@@ -32,7 +43,7 @@ function toArrayBuffer(input) {
 // const buffer = fs.readFileSync('image.exr');
 // const { width, height, pixels } = decodeRgba(buffer);
 export function decodeRgba(buffer) {
-  const reader = new EXRReader(toArrayBuffer(buffer));
+  const reader = new EXRReader(toArrayBuffer(buffer))
 
   const width = reader.getWidth()
   const height = reader.getHeight()
@@ -53,7 +64,7 @@ export function decodeRgba(buffer) {
 // @param {ArrayBuffer|Uint8Array} buffer - EXR file data
 // @returns {EXRDecodeResult}
 export function decodeRgb(buffer) {
-  const reader = new EXRReader(toArrayBuffer(buffer));
+  const reader = new EXRReader(toArrayBuffer(buffer))
 
   const width = reader.getWidth()
   const height = reader.getHeight()

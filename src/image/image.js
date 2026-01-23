@@ -1,15 +1,24 @@
 // Image container and write functionality
 
-import { Vec2, IntegerBounds, getLevelSize, LevelMode, SampleType, bytesPerSample } from '../core/types.js';
-import { Header, ImageAttributes, Encoding } from '../meta/header.js';
-import { MetaData, OffsetTable } from '../meta/index.js';
-import { BinaryWriter } from '../io/binary-writer.js';
-import { Layer } from './layer.js';
-import { generateBlockIndices, extractBlockData, Chunk } from '../block/index.js';
-import { compressBlock } from '../compression/index.js';
-import { AnyChannels, AnyChannel, FlatSamples, SpecificChannels } from './channels.js';
-import { ChannelDescription } from '../meta/attributes.js';
-import { floatToHalf, halfToFloat } from '../lib/half.js';
+import {
+  Chunk,
+  extractBlockData,
+  generateBlockIndices,
+} from '../block/index.js'
+import { compressBlock } from '../compression/index.js'
+import {
+  getLevelSize,
+  IntegerBounds,
+  LevelMode,
+  SampleType,
+  Vec2,
+} from '../core/types.js'
+import { BinaryWriter } from '../io/binary-writer.js'
+import { floatToHalf, halfToFloat } from '../lib/half.js'
+import { Encoding, Header, ImageAttributes } from '../meta/header.js'
+import { MetaData, OffsetTable } from '../meta/index.js'
+import { AnyChannel, AnyChannels, FlatSamples } from './channels.js'
+import { Layer } from './layer.js'
 
 // Complete EXR image container
 export class Image {

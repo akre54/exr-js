@@ -38,20 +38,30 @@ export { ChannelDescription, ChannelList } from '../meta/attributes.js'
 export { Encoding, ImageAttributes, LayerAttributes } from '../meta/header.js'
 
 // Reading API
-export { decodeRgba, decodeRgb, EXRReader } from './read.js';
+export { decodeRgb, decodeRgba, EXRReader } from './read.js'
 
 // Encode an RGBA image to an ArrayBuffer
-export function encodeRgba(width, height, pixels, encoding = Encoding.FAST_LOSSLESS) {
-  const channels = SpecificChannels.rgba(pixels);
-  const image = Image.fromChannels(new Vec2(width, height), channels, encoding);
-  return image.write().toArrayBuffer();
+export function encodeRgba(
+  width,
+  height,
+  pixels,
+  encoding = Encoding.FAST_LOSSLESS,
+) {
+  const channels = SpecificChannels.rgba(pixels)
+  const image = Image.fromChannels(new Vec2(width, height), channels, encoding)
+  return image.write().toArrayBuffer()
 }
 
 // Encode an RGB image to an ArrayBuffer
-export function encodeRgb(width, height, pixels, encoding = Encoding.FAST_LOSSLESS) {
-  const channels = SpecificChannels.rgb(pixels);
-  const image = Image.fromChannels(new Vec2(width, height), channels, encoding);
-  return image.write().toArrayBuffer();
+export function encodeRgb(
+  width,
+  height,
+  pixels,
+  encoding = Encoding.FAST_LOSSLESS,
+) {
+  const channels = SpecificChannels.rgb(pixels)
+  const image = Image.fromChannels(new Vec2(width, height), channels, encoding)
+  return image.write().toArrayBuffer()
 }
 
 // High-level EXR writer for render passes
@@ -70,8 +80,8 @@ export class EXRWriter {
 
   // Encode the EXR to an ArrayBuffer
   encode() {
-    const image = this._buildImage();
-    return image.write().toArrayBuffer();
+    const image = this._buildImage()
+    return image.write().toArrayBuffer()
   }
 
   // Build the Image object
