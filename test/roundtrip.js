@@ -4,15 +4,15 @@ import { expect, test } from 'vitest'
 import {
   Blocks,
   Compression,
+  decodeRgb,
+  decodeRgba,
   Encoding,
+  encodeRgb,
+  encodeRgba,
   LineOrder,
-  readRgbaFile,
-  readRgbFile,
-  writeRgbaFile,
-  writeRgbFile,
 } from '../src/index.js'
 
-test('roundtrip uncompressed RGBA', async () => {
+test('roundtrip uncompressed RGBA', () => {
   const width = 32
   const height = 32
   const pixelCount = width * height
@@ -27,8 +27,7 @@ test('roundtrip uncompressed RGBA', async () => {
   }
 
   // Write to buffer
-  const buffer = await writeRgbaFile(
-    null,
+  const buffer = encodeRgba(
     width,
     height,
     originalPixels,
@@ -36,7 +35,7 @@ test('roundtrip uncompressed RGBA', async () => {
   )
 
   // Read back
-  const result = await readRgbaFile(buffer)
+  const result = decodeRgba(buffer)
 
   expect(result.width).toBe(width)
   expect(result.height).toBe(height)
@@ -48,7 +47,7 @@ test('roundtrip uncompressed RGBA', async () => {
   }
 })
 
-test('roundtrip RLE compressed RGBA', async () => {
+test('roundtrip RLE compressed RGBA', () => {
   const width = 32
   const height = 32
   const pixelCount = width * height
@@ -66,14 +65,8 @@ test('roundtrip RLE compressed RGBA', async () => {
     Blocks.ScanLines,
     LineOrder.Increasing,
   )
-  const buffer = await writeRgbaFile(
-    null,
-    width,
-    height,
-    originalPixels,
-    encoding,
-  )
-  const result = await readRgbaFile(buffer)
+  const buffer = encodeRgba(width, height, originalPixels, encoding)
+  const result = decodeRgba(buffer)
 
   expect(result.width).toBe(width)
   expect(result.height).toBe(height)
@@ -83,7 +76,7 @@ test('roundtrip RLE compressed RGBA', async () => {
   }
 })
 
-test('roundtrip ZIP compressed RGBA', async () => {
+test('roundtrip ZIP compressed RGBA', () => {
   const width = 32
   const height = 32
   const pixelCount = width * height
@@ -101,14 +94,8 @@ test('roundtrip ZIP compressed RGBA', async () => {
     Blocks.ScanLines,
     LineOrder.Increasing,
   )
-  const buffer = await writeRgbaFile(
-    null,
-    width,
-    height,
-    originalPixels,
-    encoding,
-  )
-  const result = await readRgbaFile(buffer)
+  const buffer = encodeRgba(width, height, originalPixels, encoding)
+  const result = decodeRgba(buffer)
 
   expect(result.width).toBe(width)
   expect(result.height).toBe(height)
@@ -119,7 +106,7 @@ test('roundtrip ZIP compressed RGBA', async () => {
 })
 
 // TODO: PIZ decompression has size calculation issues in scanline mode - needs investigation
-test.skip('roundtrip PIZ compressed RGBA', async () => {
+test.skip('roundtrip PIZ compressed RGBA', () => {
   const width = 64
   const height = 64
   const pixelCount = width * height
@@ -137,14 +124,8 @@ test.skip('roundtrip PIZ compressed RGBA', async () => {
     Blocks.ScanLines,
     LineOrder.Increasing,
   )
-  const buffer = await writeRgbaFile(
-    null,
-    width,
-    height,
-    originalPixels,
-    encoding,
-  )
-  const result = await readRgbaFile(buffer)
+  const buffer = encodeRgba(width, height, originalPixels, encoding)
+  const result = decodeRgba(buffer)
 
   expect(result.width).toBe(width)
   expect(result.height).toBe(height)
@@ -154,7 +135,7 @@ test.skip('roundtrip PIZ compressed RGBA', async () => {
   }
 })
 
-test('roundtrip PXR24 compressed RGBA (lossy for F32)', async () => {
+test('roundtrip PXR24 compressed RGBA (lossy for F32)', () => {
   const width = 32
   const height = 32
   const pixelCount = width * height
@@ -172,14 +153,8 @@ test('roundtrip PXR24 compressed RGBA (lossy for F32)', async () => {
     Blocks.ScanLines,
     LineOrder.Increasing,
   )
-  const buffer = await writeRgbaFile(
-    null,
-    width,
-    height,
-    originalPixels,
-    encoding,
-  )
-  const result = await readRgbaFile(buffer)
+  const buffer = encodeRgba(width, height, originalPixels, encoding)
+  const result = decodeRgba(buffer)
 
   expect(result.width).toBe(width)
   expect(result.height).toBe(height)
@@ -190,7 +165,7 @@ test('roundtrip PXR24 compressed RGBA (lossy for F32)', async () => {
   }
 })
 
-test('roundtrip B44 compressed RGBA', async () => {
+test('roundtrip B44 compressed RGBA', () => {
   const width = 64
   const height = 64
   const pixelCount = width * height
@@ -208,14 +183,8 @@ test('roundtrip B44 compressed RGBA', async () => {
     Blocks.ScanLines,
     LineOrder.Increasing,
   )
-  const buffer = await writeRgbaFile(
-    null,
-    width,
-    height,
-    originalPixels,
-    encoding,
-  )
-  const result = await readRgbaFile(buffer)
+  const buffer = encodeRgba(width, height, originalPixels, encoding)
+  const result = decodeRgba(buffer)
 
   expect(result.width).toBe(width)
   expect(result.height).toBe(height)
@@ -226,7 +195,7 @@ test('roundtrip B44 compressed RGBA', async () => {
   }
 })
 
-test('roundtrip RGB (no alpha)', async () => {
+test('roundtrip RGB (no alpha)', () => {
   const width = 32
   const height = 32
   const pixelCount = width * height
@@ -238,14 +207,8 @@ test('roundtrip RGB (no alpha)', async () => {
     originalPixels[i * 3 + 2] = 0.5
   }
 
-  const buffer = await writeRgbFile(
-    null,
-    width,
-    height,
-    originalPixels,
-    Encoding.UNCOMPRESSED,
-  )
-  const result = await readRgbFile(buffer)
+  const buffer = encodeRgb(width, height, originalPixels, Encoding.UNCOMPRESSED)
+  const result = decodeRgb(buffer)
 
   expect(result.width).toBe(width)
   expect(result.height).toBe(height)

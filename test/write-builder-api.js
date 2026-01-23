@@ -1,13 +1,13 @@
 // Test the EXRWriter builder API
 
-import { existsSync, writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { expect, test } from 'vitest'
 import { Compression, EXRWriter, SampleType } from '../src/index.js'
 
 const width = 256
 const height = 256
 
-test('EXRWriter single layer RGBA with builder', async () => {
+test('EXRWriter single layer RGBA with builder', () => {
   const writer = new EXRWriter(width, height)
 
   writer
@@ -20,7 +20,7 @@ test('EXRWriter single layer RGBA with builder', async () => {
     .compression(Compression.ZIP16)
     .end()
 
-  const buffer = await writer.write()
+  const buffer = writer.encode()
   const filename = 'test/outputs/test-builder-single.exr'
 
   writeFileSync(filename, new Uint8Array(buffer))
@@ -33,7 +33,7 @@ test('EXRWriter single layer RGBA with builder', async () => {
   expect(magic).toBe(0x1312f76)
 })
 
-test('EXRWriter multi-layer render passes', async () => {
+test('EXRWriter multi-layer render passes', () => {
   const writer = new EXRWriter(width, height)
 
   // Beauty pass (RGBA)
@@ -91,7 +91,7 @@ test('EXRWriter multi-layer render passes', async () => {
     .compression(Compression.RLE)
     .end()
 
-  const buffer = await writer.write()
+  const buffer = writer.encode()
   const filename = 'test/outputs/test-builder-multilayer.exr'
 
   writeFileSync(filename, new Uint8Array(buffer))
@@ -102,20 +102,4 @@ test('EXRWriter multi-layer render passes', async () => {
   const view = new DataView(buffer)
   const magic = view.getUint32(0, true)
   expect(magic).toBe(0x1312f76)
-})
-
-test('EXRWriter write to file directly', async () => {
-  const writer = new EXRWriter(128, 128)
-
-  writer
-    .addLayer('test')
-    .rgba((_index) => [0.5, 0.5, 0.5, 1.0])
-    .compression(Compression.RLE)
-    .end()
-
-  const filename = 'test/outputs/test-builder-tofile.exr'
-  await writer.write(filename)
-  console.log(`  Wrote ${filename}`)
-
-  expect(existsSync(filename)).toBe(true)
 })

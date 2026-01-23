@@ -1,22 +1,22 @@
-// Test the simple writeRgbaFile/writeRgbFile API
+// Test the simple encodeRgba/encodeRgb API
 
-import { existsSync, writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { expect, test } from 'vitest'
 import {
   Blocks,
   Compression,
   Encoding,
+  encodeRgb,
+  encodeRgba,
   LineOrder,
   Vec2,
-  writeRgbaFile,
-  writeRgbFile,
 } from '../src/index.js'
 
 const width = 256
 const height = 256
 
-test('writeRgbaFile with callback', async () => {
-  const buffer = await writeRgbaFile(null, width, height, (index) => {
+test('encodeRgba with callback', () => {
+  const buffer = encodeRgba(width, height, (index) => {
     const x = index % width
     const y = Math.floor(index / width)
     return [x / width, y / height, 0.5, 1.0]
@@ -33,7 +33,7 @@ test('writeRgbaFile with callback', async () => {
   expect(magic).toBe(0x1312f76)
 })
 
-test('writeRgbaFile with Float32Array', async () => {
+test('encodeRgba with Float32Array', () => {
   const pixels = new Float32Array(width * height * 4)
   for (let i = 0; i < width * height; i++) {
     const x = i % width
@@ -44,7 +44,7 @@ test('writeRgbaFile with Float32Array', async () => {
     pixels[i * 4 + 3] = 1.0 // A
   }
 
-  const buffer = await writeRgbaFile(null, width, height, pixels)
+  const buffer = encodeRgba(width, height, pixels)
 
   const filename = 'test/outputs/test-simple-rgba-array.exr'
   writeFileSync(filename, new Uint8Array(buffer))
@@ -57,8 +57,8 @@ test('writeRgbaFile with Float32Array', async () => {
   expect(magic).toBe(0x1312f76)
 })
 
-test('writeRgbFile', async () => {
-  const buffer = await writeRgbFile(null, width, height, (index) => {
+test('encodeRgb', () => {
+  const buffer = encodeRgb(width, height, (index) => {
     const x = index % width
     const y = Math.floor(index / width)
     return [x / width, y / height, 0.5]
@@ -75,15 +75,14 @@ test('writeRgbFile', async () => {
   expect(magic).toBe(0x1312f76)
 })
 
-test('writeRgbaFile with custom encoding (PIZ)', async () => {
+test('encodeRgba with custom encoding (PIZ)', () => {
   const encoding = new Encoding(
     Compression.PIZ,
     Blocks.Tiles(new Vec2(64, 64)),
     LineOrder.Unspecified,
   )
 
-  const buffer = await writeRgbaFile(
-    null,
+  const buffer = encodeRgba(
     width,
     height,
     (index) => {
@@ -103,12 +102,4 @@ test('writeRgbaFile with custom encoding (PIZ)', async () => {
   const view = new DataView(buffer)
   const magic = view.getUint32(0, true)
   expect(magic).toBe(0x1312f76)
-})
-
-test('writeRgbaFile to file directly', async () => {
-  const filename = 'test/outputs/test-simple-direct.exr'
-  await writeRgbaFile(filename, 128, 128, (_index) => [0.5, 0.5, 0.5, 1.0])
-  console.log(`  Wrote ${filename}`)
-
-  expect(existsSync(filename)).toBe(true)
 })

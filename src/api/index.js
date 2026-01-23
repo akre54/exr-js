@@ -38,11 +38,10 @@ export { ChannelDescription, ChannelList } from '../meta/attributes.js'
 export { Encoding, ImageAttributes, LayerAttributes } from '../meta/header.js'
 
 // Reading API
-export { EXRReader, readRgbaFile, readRgbFile } from './read.js'
+export { decodeRgb, decodeRgba, EXRReader } from './read.js'
 
-// Write an RGBA image to a file
-export async function writeRgbaFile(
-  path,
+// Encode an RGBA image to an ArrayBuffer
+export function encodeRgba(
   width,
   height,
   pixels,
@@ -50,16 +49,11 @@ export async function writeRgbaFile(
 ) {
   const channels = SpecificChannels.rgba(pixels)
   const image = Image.fromChannels(new Vec2(width, height), channels, encoding)
-
-  if (path) {
-    return image.write().toFile(path)
-  }
   return image.write().toArrayBuffer()
 }
 
-// Write an RGB image to a file
-export async function writeRgbFile(
-  path,
+// Encode an RGB image to an ArrayBuffer
+export function encodeRgb(
   width,
   height,
   pixels,
@@ -67,10 +61,6 @@ export async function writeRgbFile(
 ) {
   const channels = SpecificChannels.rgb(pixels)
   const image = Image.fromChannels(new Vec2(width, height), channels, encoding)
-
-  if (path) {
-    return image.write().toFile(path)
-  }
   return image.write().toArrayBuffer()
 }
 
@@ -88,13 +78,9 @@ export class EXRWriter {
     return builder
   }
 
-  // Build and write the EXR
-  async write(filenameOrNull = null) {
+  // Encode the EXR to an ArrayBuffer
+  encode() {
     const image = this._buildImage()
-
-    if (filenameOrNull) {
-      return image.write().toFile(filenameOrNull)
-    }
     return image.write().toArrayBuffer()
   }
 

@@ -3,7 +3,12 @@
 // Handles module loading properly to avoid browser compatibility issues.
 
 import { createRequire } from 'node:module'
-import { isNode } from './platform.js'
+
+// Detect Node.js environment
+const isNode =
+  typeof process !== 'undefined' &&
+  process.versions != null &&
+  process.versions.node != null
 
 let _zlib = null
 let _initialized = false

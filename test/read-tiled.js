@@ -1,11 +1,12 @@
 // Tests for reading tiled EXR files
 
+import { readFileSync } from 'node:fs'
 import { expect, test } from 'vitest'
-import { EXRReader, readRgbaFile } from '../src/index.js'
+import { decodeRgba, EXRReader } from '../src/index.js'
 
-test('read tiled single-layer EXR', async () => {
-  const reader = await EXRReader.fromFile(
-    'test/outputs/test-builder-single.exr',
+test('read tiled single-layer EXR', () => {
+  const reader = new EXRReader(
+    readFileSync('test/outputs/test-builder-single.exr'),
   )
 
   expect(reader.isTiled(0)).toBe(true)
@@ -17,8 +18,10 @@ test('read tiled single-layer EXR', async () => {
   expect(pixels.length).toBe(reader.getWidth() * reader.getHeight() * 4)
 })
 
-test('read tiled EXR with simple API', async () => {
-  const result = await readRgbaFile('test/outputs/test-builder-single.exr')
+test('read tiled EXR with simple API', () => {
+  const result = decodeRgba(
+    readFileSync('test/outputs/test-builder-single.exr'),
+  )
 
   expect(result.width).toBeGreaterThan(0)
   expect(result.height).toBeGreaterThan(0)
@@ -26,8 +29,10 @@ test('read tiled EXR with simple API', async () => {
 })
 
 // TODO: Mipmap/ripmap reading requires filtering to level 0 chunks only
-test.skip('read mipmap EXR', async () => {
-  const reader = await EXRReader.fromFile('test/outputs/test-mipmap-down.exr')
+test.skip('read mipmap EXR', () => {
+  const reader = new EXRReader(
+    readFileSync('test/outputs/test-mipmap-down.exr'),
+  )
 
   expect(reader.isTiled(0)).toBe(true)
   expect(reader.getWidth()).toBeGreaterThan(0)
@@ -39,8 +44,8 @@ test.skip('read mipmap EXR', async () => {
 })
 
 // TODO: Mipmap/ripmap reading requires filtering to level 0 chunks only
-test.skip('read ripmap EXR', async () => {
-  const reader = await EXRReader.fromFile('test/outputs/test-ripmap.exr')
+test.skip('read ripmap EXR', () => {
+  const reader = new EXRReader(readFileSync('test/outputs/test-ripmap.exr'))
 
   expect(reader.isTiled(0)).toBe(true)
 

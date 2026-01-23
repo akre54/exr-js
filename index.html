@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>exrjs - OpenEXR for JavaScript</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #1a1a2e;
+      color: #eee;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #fff;
+      margin-bottom: 0.5em;
+    }
+    h1 code {
+      background: #16213e;
+      padding: 0.2em 0.4em;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+    .subtitle {
+      color: #888;
+      margin-top: 0;
+      margin-bottom: 2em;
+    }
+    .section {
+      background: #16213e;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    h2 {
+      margin-top: 0;
+      color: #0f4c75;
+      font-size: 1.2em;
+      border-bottom: 1px solid #333;
+      padding-bottom: 0.5em;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+    button {
+      background: #0f4c75;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #1b6ca8;
+    }
+    button:disabled {
+      background: #333;
+      cursor: not-allowed;
+    }
+    input[type="file"] {
+      display: none;
+    }
+    label.file-label {
+      background: #0f4c75;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      display: inline-block;
+      transition: background 0.2s;
+    }
+    label.file-label:hover {
+      background: #1b6ca8;
+    }
+    select {
+      background: #0a0a1a;
+      color: #eee;
+      border: 1px solid #333;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .canvas-container {
+      background: #0a0a1a;
+      border-radius: 4px;
+      padding: 10px;
+      text-align: center;
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    canvas {
+      max-width: 100%;
+      height: auto;
+      image-rendering: pixelated;
+    }
+    .placeholder {
+      color: #666;
+      font-style: italic;
+    }
+    .info {
+      background: #0a0a1a;
+      border-radius: 4px;
+      padding: 15px;
+      margin-top: 15px;
+      font-family: monospace;
+      font-size: 13px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      border-bottom: 1px solid #222;
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .info-label {
+      color: #888;
+    }
+    .info-value {
+      color: #4cc9f0;
+    }
+    .exposure-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .exposure-control label {
+      color: #888;
+      font-size: 13px;
+    }
+    input[type="range"] {
+      flex: 1;
+      accent-color: #0f4c75;
+    }
+    .exposure-value {
+      color: #4cc9f0;
+      font-family: monospace;
+      min-width: 60px;
+    }
+    a {
+      color: #4cc9f0;
+    }
+    .github-link {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #333;
+    }
+    .error {
+      background: #4a1010;
+      color: #ff6b6b;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1><code>exrjs</code></h1>
+  <p class="subtitle">OpenEXR encoding and decoding for JavaScript - works in browsers and Node.js</p>
+
+  <div class="section">
+    <h2>Upload & View EXR</h2>
+    <div class="controls">
+      <label class="file-label">
+        <input type="file" id="fileInput" accept=".exr">
+        Choose EXR File
+      </label>
+    </div>
+    <div class="canvas-container" id="uploadContainer">
+      <span class="placeholder">Upload an EXR file to view it</span>
+    </div>
+    <div class="exposure-control" id="uploadExposure" style="display: none;">
+      <label>Exposure:</label>
+      <input type="range" id="uploadExposureSlider" min="-5" max="5" step="0.1" value="0">
+      <span class="exposure-value" id="uploadExposureValue">0.0 EV</span>
+    </div>
+    <div class="info" id="uploadInfo" style="display: none;"></div>
+    <div id="uploadError"></div>
+  </div>
+
+  <div class="section">
+    <h2>Generate & Download EXR</h2>
+    <div class="controls">
+      <select id="patternSelect">
+        <option value="gradient">Color Gradient</option>
+        <option value="checker">Checkerboard</option>
+        <option value="hdr">HDR Test (bright highlights)</option>
+        <option value="mandelbrot">Mandelbrot Set</option>
+      </select>
+      <select id="compressionSelect">
+        <option value="none">Uncompressed</option>
+        <option value="rle">RLE</option>
+        <option value="zip16" selected>ZIP16</option>
+        <option value="piz">PIZ</option>
+        <option value="pxr24">PXR24</option>
+        <option value="b44">B44</option>
+      </select>
+      <button id="generateBtn">Generate</button>
+      <button id="downloadBtn" disabled>Download EXR</button>
+    </div>
+    <div class="canvas-container" id="generateContainer">
+      <span class="placeholder">Click "Generate" to create an EXR</span>
+    </div>
+    <div class="exposure-control" id="generateExposure" style="display: none;">
+      <label>Exposure:</label>
+      <input type="range" id="generateExposureSlider" min="-5" max="5" step="0.1" value="0">
+      <span class="exposure-value" id="generateExposureValue">0.0 EV</span>
+    </div>
+    <div class="info" id="generateInfo" style="display: none;"></div>
+  </div>
+
+  <div class="github-link">
+    <a href="https://github.com/akre54/exrjs">View on GitHub</a> |
+    <a href="https://www.npmjs.com/package/exrjs">npm</a>
+  </div>
+
+  <script type="module">
+    import { encodeRgba, decodeRgba, Encoding, Compression, Blocks, LineOrder } from './dist/exrjs.esm.js';
+
+    // State
+    let uploadedPixels = null;
+    let uploadedWidth = 0;
+    let uploadedHeight = 0;
+    let generatedPixels = null;
+    let generatedWidth = 256;
+    let generatedHeight = 256;
+    let generatedBuffer = null;
+
+    // Elements
+    const fileInput = document.getElementById('fileInput');
+    const uploadContainer = document.getElementById('uploadContainer');
+    const uploadExposure = document.getElementById('uploadExposure');
+    const uploadExposureSlider = document.getElementById('uploadExposureSlider');
+    const uploadExposureValue = document.getElementById('uploadExposureValue');
+    const uploadInfo = document.getElementById('uploadInfo');
+    const uploadError = document.getElementById('uploadError');
+
+    const patternSelect = document.getElementById('patternSelect');
+    const compressionSelect = document.getElementById('compressionSelect');
+    const generateBtn = document.getElementById('generateBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const generateContainer = document.getElementById('generateContainer');
+    const generateExposure = document.getElementById('generateExposure');
+    const generateExposureSlider = document.getElementById('generateExposureSlider');
+    const generateExposureValue = document.getElementById('generateExposureValue');
+    const generateInfo = document.getElementById('generateInfo');
+
+    // Tone mapping: simple Reinhard with exposure
+    function toneMap(hdrValue, exposure) {
+      const ev = Math.pow(2, exposure);
+      const v = hdrValue * ev;
+      return v / (1 + v); // Reinhard
+    }
+
+    // Render HDR pixels to canvas with tone mapping
+    function renderToCanvas(container, pixels, width, height, exposure = 0) {
+      let canvas = container.querySelector('canvas');
+      if (!canvas) {
+        container.innerHTML = '';
+        canvas = document.createElement('canvas');
+        container.appendChild(canvas);
+      }
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d');
+      const imageData = ctx.createImageData(width, height);
+      const data = imageData.data;
+
+      for (let i = 0; i < width * height; i++) {
+        const r = toneMap(pixels[i * 4 + 0], exposure);
+        const g = toneMap(pixels[i * 4 + 1], exposure);
+        const b = toneMap(pixels[i * 4 + 2], exposure);
+        const a = pixels[i * 4 + 3];
+
+        data[i * 4 + 0] = Math.max(0, Math.min(255, Math.round(r * 255)));
+        data[i * 4 + 1] = Math.max(0, Math.min(255, Math.round(g * 255)));
+        data[i * 4 + 2] = Math.max(0, Math.min(255, Math.round(b * 255)));
+        data[i * 4 + 3] = Math.max(0, Math.min(255, Math.round(a * 255)));
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+    }
+
+    // File upload handler
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      uploadError.innerHTML = '';
+
+      try {
+        const buffer = await file.arrayBuffer();
+        const result = decodeRgba(buffer);
+
+        uploadedPixels = result.pixels;
+        uploadedWidth = result.width;
+        uploadedHeight = result.height;
+
+        renderToCanvas(uploadContainer, uploadedPixels, uploadedWidth, uploadedHeight, 0);
+        uploadExposure.style.display = 'flex';
+        uploadExposureSlider.value = 0;
+        uploadExposureValue.textContent = '0.0 EV';
+
+        // Show info
+        const compressionNames = ['None', 'RLE', 'ZIP1', 'ZIP16', 'PIZ', 'PXR24', 'B44', 'B44A', 'DWAA', 'DWAB'];
+        uploadInfo.style.display = 'block';
+        uploadInfo.innerHTML = `
+          <div class="info-row"><span class="info-label">Dimensions:</span><span class="info-value">${result.width} x ${result.height}</span></div>
+          <div class="info-row"><span class="info-label">Pixels:</span><span class="info-value">${(result.width * result.height).toLocaleString()}</span></div>
+          <div class="info-row"><span class="info-label">Compression:</span><span class="info-value">${compressionNames[result.compression] || 'Unknown'}</span></div>
+          <div class="info-row"><span class="info-label">File size:</span><span class="info-value">${(file.size / 1024).toFixed(1)} KB</span></div>
+        `;
+      } catch (err) {
+        uploadError.innerHTML = `<div class="error">Error: ${err.message}</div>`;
+        console.error(err);
+      }
+    });
+
+    // Upload exposure slider
+    uploadExposureSlider.addEventListener('input', () => {
+      const exposure = parseFloat(uploadExposureSlider.value);
+      uploadExposureValue.textContent = `${exposure.toFixed(1)} EV`;
+      if (uploadedPixels) {
+        renderToCanvas(uploadContainer, uploadedPixels, uploadedWidth, uploadedHeight, exposure);
+      }
+    });
+
+    // Pattern generators
+    const patterns = {
+      gradient: (x, y, w, h) => {
+        return [x / w, y / h, 0.5, 1.0];
+      },
+      checker: (x, y, w, h) => {
+        const size = 32;
+        const cx = Math.floor(x / size);
+        const cy = Math.floor(y / size);
+        const v = (cx + cy) % 2 === 0 ? 0.8 : 0.2;
+        return [v, v, v, 1.0];
+      },
+      hdr: (x, y, w, h) => {
+        // HDR test pattern with bright highlights
+        const cx = w / 2, cy = h / 2;
+        const dx = x - cx, dy = y - cy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const maxDist = Math.sqrt(cx * cx + cy * cy);
+
+        // Base gradient
+        let r = x / w;
+        let g = y / h;
+        let b = 0.3;
+
+        // Add bright sun
+        const sunDist = Math.sqrt((x - w * 0.7) ** 2 + (y - h * 0.3) ** 2);
+        const sunRadius = Math.min(w, h) * 0.1;
+        if (sunDist < sunRadius) {
+          const t = 1 - sunDist / sunRadius;
+          const brightness = 10 * t * t; // HDR brightness up to 10x
+          r += brightness;
+          g += brightness * 0.9;
+          b += brightness * 0.7;
+        }
+
+        return [r, g, b, 1.0];
+      },
+      mandelbrot: (x, y, w, h) => {
+        const maxIter = 100;
+        const cx = (x / w) * 3.5 - 2.5;
+        const cy = (y / h) * 2 - 1;
+
+        let zx = 0, zy = 0;
+        let iter = 0;
+
+        while (zx * zx + zy * zy < 4 && iter < maxIter) {
+          const tmp = zx * zx - zy * zy + cx;
+          zy = 2 * zx * zy + cy;
+          zx = tmp;
+          iter++;
+        }
+
+        if (iter === maxIter) {
+          return [0, 0, 0, 1];
+        }
+
+        const t = iter / maxIter;
+        return [
+          0.5 + 0.5 * Math.sin(t * 6.28 * 3),
+          0.5 + 0.5 * Math.sin(t * 6.28 * 5 + 2),
+          0.5 + 0.5 * Math.sin(t * 6.28 * 7 + 4),
+          1.0
+        ];
+      }
+    };
+
+    // Generate button
+    generateBtn.addEventListener('click', () => {
+      const pattern = patternSelect.value;
+      const compressionName = compressionSelect.value;
+
+      const compressionMap = {
+        'none': Compression.Uncompressed,
+        'rle': Compression.RLE,
+        'zip16': Compression.ZIP16,
+        'piz': Compression.PIZ,
+        'pxr24': Compression.PXR24,
+        'b44': Compression.B44
+      };
+
+      const compression = compressionMap[compressionName];
+      const encoding = new Encoding(compression, Blocks.ScanLines, LineOrder.Increasing);
+
+      // Generate pixel data
+      generatedPixels = new Float32Array(generatedWidth * generatedHeight * 4);
+      const patternFn = patterns[pattern];
+
+      for (let y = 0; y < generatedHeight; y++) {
+        for (let x = 0; x < generatedWidth; x++) {
+          const i = (y * generatedWidth + x) * 4;
+          const [r, g, b, a] = patternFn(x, y, generatedWidth, generatedHeight);
+          generatedPixels[i + 0] = r;
+          generatedPixels[i + 1] = g;
+          generatedPixels[i + 2] = b;
+          generatedPixels[i + 3] = a;
+        }
+      }
+
+      // Encode to EXR
+      const startTime = performance.now();
+      generatedBuffer = encodeRgba(generatedWidth, generatedHeight, generatedPixels, encoding);
+      const encodeTime = performance.now() - startTime;
+
+      // Render preview
+      renderToCanvas(generateContainer, generatedPixels, generatedWidth, generatedHeight, 0);
+      generateExposure.style.display = 'flex';
+      generateExposureSlider.value = 0;
+      generateExposureValue.textContent = '0.0 EV';
+
+      // Show info
+      generateInfo.style.display = 'block';
+      generateInfo.innerHTML = `
+        <div class="info-row"><span class="info-label">Dimensions:</span><span class="info-value">${generatedWidth} x ${generatedHeight}</span></div>
+        <div class="info-row"><span class="info-label">Compression:</span><span class="info-value">${compressionName.toUpperCase()}</span></div>
+        <div class="info-row"><span class="info-label">File size:</span><span class="info-value">${(generatedBuffer.byteLength / 1024).toFixed(1)} KB</span></div>
+        <div class="info-row"><span class="info-label">Encode time:</span><span class="info-value">${encodeTime.toFixed(1)} ms</span></div>
+      `;
+
+      downloadBtn.disabled = false;
+    });
+
+    // Generate exposure slider
+    generateExposureSlider.addEventListener('input', () => {
+      const exposure = parseFloat(generateExposureSlider.value);
+      generateExposureValue.textContent = `${exposure.toFixed(1)} EV`;
+      if (generatedPixels) {
+        renderToCanvas(generateContainer, generatedPixels, generatedWidth, generatedHeight, exposure);
+      }
+    });
+
+    // Download button
+    downloadBtn.addEventListener('click', () => {
+      if (!generatedBuffer) return;
+
+      const blob = new Blob([generatedBuffer], { type: 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `exrjs-${patternSelect.value}.exr`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>

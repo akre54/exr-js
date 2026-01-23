@@ -14,7 +14,6 @@ import {
   Vec2,
 } from '../core/types.js'
 import { BinaryWriter } from '../io/binary-writer.js'
-import { writeToFile } from '../io/platform.js'
 import { floatToHalf, halfToFloat } from '../lib/half.js'
 import { Encoding, Header, ImageAttributes } from '../meta/header.js'
 import { MetaData, OffsetTable } from '../meta/index.js'
@@ -100,12 +99,6 @@ export class WriteImageWithOptions {
   // Write to a Uint8Array
   toUint8Array() {
     return new Uint8Array(this.toArrayBuffer())
-  }
-
-  // Write to a file (Node.js) or trigger download (browser)
-  async toFile(filename) {
-    const buffer = this.toArrayBuffer()
-    await writeToFile(buffer, filename)
   }
 }
 
