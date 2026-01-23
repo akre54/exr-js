@@ -1,121 +1,123 @@
 // Meta module - EXR file metadata, headers, and attributes
 
-import { BinaryWriter } from '../io/binary-writer.js';
-import { MAGIC_NUMBER, EXR_VERSION, VersionFlags } from '../core/constants.js';
-import { Header, writeHeaders } from './header.js';
+import { EXR_VERSION, MAGIC_NUMBER, VersionFlags } from '../core/constants.js'
+import { writeHeaders } from './header.js'
 
-export * from './attributes.js';
-export * from './header.js';
-export * from './read-attributes.js';
-export * from './read-header.js';
+export * from './attributes.js'
+export * from './header.js'
+export * from './read-attributes.js'
+export * from './read-header.js'
 
 // Requirements flags for the file
 export class Requirements {
   constructor() {
     // File format version (1 or 2)
-    this.fileFormatVersion = EXR_VERSION;
+    this.fileFormatVersion = EXR_VERSION
     // Single-part tiled image
-    this.isSingleLayerAndTiled = false;
+    this.isSingleLayerAndTiled = false
     // Has long names (> 31 chars)
-    this.hasLongNames = false;
+    this.hasLongNames = false
     // Has deep data
-    this.hasDeepData = false;
+    this.hasDeepData = false
     // Has multiple layers
-    this.hasMultipleLayers = false;
+    this.hasMultipleLayers = false
   }
 
   // Infer requirements from headers
   static fromHeaders(headers) {
-    const req = new Requirements();
+    const req = new Requirements()
 
-    req.hasMultipleLayers = headers.length > 1;
+    req.hasMultipleLayers = headers.length > 1
 
     if (headers.length === 1 && headers[0].encoding.blocks.isTiled()) {
-      req.isSingleLayerAndTiled = true;
+      req.isSingleLayerAndTiled = true
     }
 
     // Check for long names
     for (const header of headers) {
-      if (header.ownAttributes.layerName && header.ownAttributes.layerName.length > 31) {
-        req.hasLongNames = true;
+      if (
+        header.ownAttributes.layerName &&
+        header.ownAttributes.layerName.length > 31
+      ) {
+        req.hasLongNames = true
       }
       for (const channel of header.channels.list) {
         if (channel.name.length > 31) {
-          req.hasLongNames = true;
+          req.hasLongNames = true
         }
       }
     }
 
-    return req;
+    return req
   }
 
   // Write the requirements to a writer
   write(writer) {
-    let versionAndFlags = this.fileFormatVersion & 0x0f;
+    let versionAndFlags = this.fileFormatVersion & 0x0f
 
     if (this.isSingleLayerAndTiled) {
-      versionAndFlags |= VersionFlags.TILED;
+      versionAndFlags |= VersionFlags.TILED
     }
     if (this.hasLongNames) {
-      versionAndFlags |= VersionFlags.LONG_NAMES;
+      versionAndFlags |= VersionFlags.LONG_NAMES
     }
     if (this.hasDeepData) {
-      versionAndFlags |= VersionFlags.DEEP_DATA;
+      versionAndFlags |= VersionFlags.DEEP_DATA
     }
     if (this.hasMultipleLayers) {
-      versionAndFlags |= VersionFlags.MULTI_PART;
+      versionAndFlags |= VersionFlags.MULTI_PART
     }
 
-    writer.writeU32(versionAndFlags);
+    writer.writeU32(versionAndFlags)
   }
 }
 
 // Complete file metadata
 export class MetaData {
   constructor(requirements, headers) {
-    this.requirements = requirements;
-    this.headers = headers;
+    this.requirements = requirements
+    this.headers = headers
   }
 
   // Create metadata from headers
   static fromHeaders(headers) {
-    const requirements = Requirements.fromHeaders(headers);
-    return new MetaData(requirements, headers);
+    const requirements = Requirements.fromHeaders(headers)
+    return new MetaData(requirements, headers)
   }
 
   // Write the magic number to a writer
   static writeMagicNumber(writer) {
-    writer.writeU32(MAGIC_NUMBER);
+    writer.writeU32(MAGIC_NUMBER)
   }
 
   // Write complete metadata (magic, version, headers) to a writer
   write(writer) {
-    MetaData.writeMagicNumber(writer);
-    this.requirements.write(writer);
-    writeHeaders(writer, this.headers, this.requirements.hasMultipleLayers);
+    MetaData.writeMagicNumber(writer)
+    this.requirements.write(writer)
+    writeHeaders(writer, this.headers, this.requirements.hasMultipleLayers)
   }
 
   // Get total chunk count across all headers
   get totalChunkCount() {
-    return this.headers.reduce((sum, h) => sum + h.chunkCount, 0);
+    return this.headers.reduce((sum, h) => sum + h.chunkCount, 0)
   }
 }
 
 // Offset table for chunk locations
 export class OffsetTable {
   constructor(count) {
-    this.offsets = new Array(count).fill(0n);
+    this.offsets = new Array(count).fill(0n)
   }
 
   // Write the offset table to a writer
   write(writer) {
     for (const offset of this.offsets) {
-      writer.writeU64(offset);
+      writer.writeU64(offset)
     }
   }
 
   // Byte size of the offset table
   get byteSize() {
-    return this.offsets.length * 8;
+    return this.offsets.length * 8
   }
 }

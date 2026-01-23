@@ -1,10 +1,10 @@
 // EXR file format constants
 
 // Magic number identifying an EXR file
-export const MAGIC_NUMBER = 0x01312f76; // Little-endian: 0x76, 0x2f, 0x31, 0x01
+export const MAGIC_NUMBER = 0x01312f76 // Little-endian: 0x76, 0x2f, 0x31, 0x01
 
 // Current EXR version
-export const EXR_VERSION = 2;
+export const EXR_VERSION = 2
 
 // Version flags
 export const VersionFlags = Object.freeze({
@@ -16,13 +16,13 @@ export const VersionFlags = Object.freeze({
   DEEP_DATA: 1 << 11,
   // Multi-part file
   MULTI_PART: 1 << 12,
-});
+})
 
 // Maximum attribute name/value length without LONG_NAMES flag
-export const MAX_SHORT_NAME_LENGTH = 31;
+export const MAX_SHORT_NAME_LENGTH = 31
 
 // Maximum attribute name/value length with LONG_NAMES flag
-export const MAX_LONG_NAME_LENGTH = 255;
+export const MAX_LONG_NAME_LENGTH = 255
 
 // Attribute type names as written in the file
 export const AttributeType = Object.freeze({
@@ -49,7 +49,7 @@ export const AttributeType = Object.freeze({
   V2F: 'v2f',
   V3I: 'v3i',
   V3F: 'v3f',
-});
+})
 
 // Required header attributes
 export const RequiredAttributes = Object.freeze([
@@ -61,13 +61,13 @@ export const RequiredAttributes = Object.freeze([
   'pixelAspectRatio',
   'screenWindowCenter',
   'screenWindowWidth',
-]);
+])
 
 // Additional required attributes for tiled images
-export const TiledAttributes = Object.freeze(['tiles']);
+export const TiledAttributes = Object.freeze(['tiles'])
 
 // Additional required attributes for multi-part files
-export const MultiPartAttributes = Object.freeze(['name', 'type']);
+export const MultiPartAttributes = Object.freeze(['name', 'type'])
 
 // Layer type identifiers
 export const LayerType = Object.freeze({
@@ -75,10 +75,10 @@ export const LayerType = Object.freeze({
   TILED: 'tiledimage',
   DEEP_SCANLINE: 'deepscanline',
   DEEP_TILED: 'deeptile',
-});
+})
 
 // Default tile size
-export const DEFAULT_TILE_SIZE = 64;
+export const DEFAULT_TILE_SIZE = 64
 
 // Compression IDs as written in the file
 export const CompressionId = Object.freeze({
@@ -92,4 +92,4 @@ export const CompressionId = Object.freeze({
   B44A_COMPRESSION: 7,
   DWAA_COMPRESSION: 8,
   DWAB_COMPRESSION: 9,
-});
+})

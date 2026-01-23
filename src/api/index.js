@@ -1,120 +1,158 @@
 // Public API for exrjs
 
-import { Vec2, IntegerBounds, SampleType, LineOrder, Blocks } from '../core/types.js';
-import { Image } from '../image/image.js';
-import { Layer } from '../image/layer.js';
-import { SpecificChannels, AnyChannels, AnyChannel, FlatSamples } from '../image/channels.js';
-import { Encoding, LayerAttributes, ImageAttributes } from '../meta/header.js';
-import { ChannelDescription } from '../meta/attributes.js';
+import {
+  Blocks,
+  IntegerBounds,
+  LineOrder,
+  SampleType,
+  Vec2,
+} from '../core/types.js'
+import {
+  AnyChannel,
+  AnyChannels,
+  FlatSamples,
+  SpecificChannels,
+} from '../image/channels.js'
+import { Image } from '../image/image.js'
+import { Layer } from '../image/layer.js'
+import { Encoding, ImageAttributes, LayerAttributes } from '../meta/header.js'
 
 // Re-export core types
-export { Vec2, IntegerBounds, SampleType, Compression, LineOrder, Blocks } from '../core/types.js';
-export { Image } from '../image/image.js';
-export { Layer } from '../image/layer.js';
-export { SpecificChannels, AnyChannels, AnyChannel, FlatSamples } from '../image/channels.js';
-export { Encoding, LayerAttributes, ImageAttributes } from '../meta/header.js';
-export { ChannelDescription, ChannelList } from '../meta/attributes.js';
+export {
+  Blocks,
+  Compression,
+  IntegerBounds,
+  LineOrder,
+  SampleType,
+  Vec2,
+} from '../core/types.js'
+export {
+  AnyChannel,
+  AnyChannels,
+  FlatSamples,
+  SpecificChannels,
+} from '../image/channels.js'
+export { Image } from '../image/image.js'
+export { Layer } from '../image/layer.js'
+export { ChannelDescription, ChannelList } from '../meta/attributes.js'
+export { Encoding, ImageAttributes, LayerAttributes } from '../meta/header.js'
 
 // Reading API
-export { readRgbaFile, readRgbFile, EXRReader } from './read.js';
+export { EXRReader, readRgbaFile, readRgbFile } from './read.js'
 
 // Write an RGBA image to a file
-export async function writeRgbaFile(path, width, height, pixels, encoding = Encoding.FAST_LOSSLESS) {
-  const channels = SpecificChannels.rgba(pixels);
-  const image = Image.fromChannels(new Vec2(width, height), channels, encoding);
+export async function writeRgbaFile(
+  path,
+  width,
+  height,
+  pixels,
+  encoding = Encoding.FAST_LOSSLESS,
+) {
+  const channels = SpecificChannels.rgba(pixels)
+  const image = Image.fromChannels(new Vec2(width, height), channels, encoding)
 
   if (path) {
-    return image.write().toFile(path);
+    return image.write().toFile(path)
   }
-  return image.write().toArrayBuffer();
+  return image.write().toArrayBuffer()
 }
 
 // Write an RGB image to a file
-export async function writeRgbFile(path, width, height, pixels, encoding = Encoding.FAST_LOSSLESS) {
-  const channels = SpecificChannels.rgb(pixels);
-  const image = Image.fromChannels(new Vec2(width, height), channels, encoding);
+export async function writeRgbFile(
+  path,
+  width,
+  height,
+  pixels,
+  encoding = Encoding.FAST_LOSSLESS,
+) {
+  const channels = SpecificChannels.rgb(pixels)
+  const image = Image.fromChannels(new Vec2(width, height), channels, encoding)
 
   if (path) {
-    return image.write().toFile(path);
+    return image.write().toFile(path)
   }
-  return image.write().toArrayBuffer();
+  return image.write().toArrayBuffer()
 }
 
 // High-level EXR writer for render passes
 export class EXRWriter {
   constructor(width, height) {
-    this.width = width;
-    this.height = height;
-    this._layers = [];
+    this.width = width
+    this.height = height
+    this._layers = []
   }
 
   // Add a render pass layer
   addLayer(name, options = {}) {
-    const builder = new LayerBuilder(this, name, options);
-    return builder;
+    const builder = new LayerBuilder(this, name, options)
+    return builder
   }
 
   // Build and write the EXR
   async write(filenameOrNull = null) {
-    const image = this._buildImage();
+    const image = this._buildImage()
 
     if (filenameOrNull) {
-      return image.write().toFile(filenameOrNull);
+      return image.write().toFile(filenameOrNull)
     }
-    return image.write().toArrayBuffer();
+    return image.write().toArrayBuffer()
   }
 
   // Build the Image object
   _buildImage() {
-    const size = new Vec2(this.width, this.height);
-    const layers = this._layers.map((builder) => builder._build(size));
+    const size = new Vec2(this.width, this.height)
+    const layers = this._layers.map((builder) => builder._build(size))
 
     if (layers.length === 1) {
-      return Image.fromLayer(layers[0]);
+      return Image.fromLayer(layers[0])
     }
 
-    const displayWindow = IntegerBounds.fromDimensions(this.width, this.height);
-    return new Image(new ImageAttributes(displayWindow), layers);
+    const displayWindow = IntegerBounds.fromDimensions(this.width, this.height)
+    return new Image(new ImageAttributes(displayWindow), layers)
   }
 }
 
 // Builder for a single layer
 class LayerBuilder {
   constructor(writer, name, options) {
-    this._writer = writer;
-    this._name = name;
-    this._encoding = options.encoding || Encoding.FAST_LOSSLESS;
-    this._channelDescriptions = [];
-    this._pixelSource = null;
-    this._isRgba = false;
-    this._isRgb = false;
-    this._sampleType = SampleType.F32;
+    this._writer = writer
+    this._name = name
+    this._encoding = options.encoding || Encoding.FAST_LOSSLESS
+    this._channelDescriptions = []
+    this._pixelSource = null
+    this._isRgba = false
+    this._isRgb = false
+    this._sampleType = SampleType.F32
   }
 
   // Set RGBA channels
   rgba(data) {
-    this._isRgba = true;
-    this._pixelSource = data;
-    return this;
+    this._isRgba = true
+    this._pixelSource = data
+    return this
   }
 
   // Set RGB channels
   rgb(data) {
-    this._isRgb = true;
-    this._pixelSource = data;
-    return this;
+    this._isRgb = true
+    this._pixelSource = data
+    return this
   }
 
   // Add a single channel
   channel(name, sampleType, data) {
-    this._channelDescriptions.push({ name, sampleType, data });
-    return this;
+    this._channelDescriptions.push({ name, sampleType, data })
+    return this
   }
 
   // Set compression method
   compression(compression) {
-    this._encoding = new Encoding(compression, this._encoding.blocks, this._encoding.lineOrder);
-    return this;
+    this._encoding = new Encoding(
+      compression,
+      this._encoding.blocks,
+      this._encoding.lineOrder,
+    )
+    return this
   }
 
   // Use tiled storage
@@ -122,9 +160,9 @@ class LayerBuilder {
     this._encoding = new Encoding(
       this._encoding.compression,
       Blocks.Tiles(new Vec2(tileWidth, tileHeight)),
-      LineOrder.Unspecified
-    );
-    return this;
+      LineOrder.Unspecified,
+    )
+    return this
   }
 
   // Use scanline storage
@@ -132,47 +170,57 @@ class LayerBuilder {
     this._encoding = new Encoding(
       this._encoding.compression,
       Blocks.ScanLines,
-      LineOrder.Increasing
-    );
-    return this;
+      LineOrder.Increasing,
+    )
+    return this
   }
 
   // Set sample type for RGB/RGBA channels
   sampleType(sampleType) {
-    this._sampleType = sampleType;
-    return this;
+    this._sampleType = sampleType
+    return this
   }
 
   // Complete this layer and return to writer
   end() {
-    this._writer._layers.push(this);
-    return this._writer;
+    this._writer._layers.push(this)
+    return this._writer
   }
 
   // Build the Layer object
   _build(size) {
-    let channelData;
+    let channelData
 
     if (this._isRgba) {
-      channelData = SpecificChannels.rgba(this._pixelSource, this._sampleType);
+      channelData = SpecificChannels.rgba(this._pixelSource, this._sampleType)
     } else if (this._isRgb) {
-      channelData = SpecificChannels.rgb(this._pixelSource, this._sampleType);
+      channelData = SpecificChannels.rgb(this._pixelSource, this._sampleType)
     } else {
       // Build from individual channels
-      const channels = this._channelDescriptions.map(({ name, sampleType, data }) => {
-        let samples;
-        if (sampleType === SampleType.F16 || data instanceof Uint16Array) {
-          samples = FlatSamples.f16(data);
-        } else if (sampleType === SampleType.U32 || data instanceof Uint32Array) {
-          samples = FlatSamples.u32(data);
-        } else {
-          samples = FlatSamples.f32(data);
-        }
-        return new AnyChannel(name, samples);
-      });
-      channelData = new AnyChannels(channels);
+      const channels = this._channelDescriptions.map(
+        ({ name, sampleType, data }) => {
+          let samples
+          if (sampleType === SampleType.F16 || data instanceof Uint16Array) {
+            samples = FlatSamples.f16(data)
+          } else if (
+            sampleType === SampleType.U32 ||
+            data instanceof Uint32Array
+          ) {
+            samples = FlatSamples.u32(data)
+          } else {
+            samples = FlatSamples.f32(data)
+          }
+          return new AnyChannel(name, samples)
+        },
+      )
+      channelData = new AnyChannels(channels)
     }
 
-    return new Layer(size, LayerAttributes.named(this._name), this._encoding, channelData);
+    return new Layer(
+      size,
+      LayerAttributes.named(this._name),
+      this._encoding,
+      channelData,
+    )
   }
 }

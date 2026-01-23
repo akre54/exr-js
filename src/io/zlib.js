@@ -2,29 +2,28 @@
 // Uses Node.js zlib in Node environments, pako in browsers.
 // Handles module loading properly to avoid browser compatibility issues.
 
-import { isNode } from './platform.js';
-import { createRequire } from 'module';
+import { createRequire } from 'node:module'
+import { isNode } from './platform.js'
 
-let _zlib = null;
-let _initialized = false;
+let _zlib = null
+let _initialized = false
 
-/**
- * Initialize Node.js zlib module synchronously using require
- */
+// Initialize Node.js zlib module synchronously using require
 function initNodeZlib() {
-  if (_initialized) return;
-  _initialized = true;
+  if (_initialized) return
+  _initialized = true
 
   if (isNode) {
     try {
       // Use createRequire to load zlib synchronously in ES modules
-      const require = createRequire(import.meta.url);
-      const nodeZlib = require('zlib');
+      const require = createRequire(import.meta.url)
+      const nodeZlib = require('node:zlib')
       _zlib = {
-        deflate: (data, level) => nodeZlib.deflateSync(Buffer.from(data), { level }),
-        inflate: (data) => nodeZlib.inflateSync(Buffer.from(data))
-      };
-    } catch (e) {
+        deflate: (data, level) =>
+          nodeZlib.deflateSync(Buffer.from(data), { level }),
+        inflate: (data) => nodeZlib.inflateSync(Buffer.from(data)),
+      }
+    } catch (_e) {
       // zlib not available
     }
   }
@@ -36,20 +35,20 @@ function initNodeZlib() {
 export function getZlib() {
   // Initialize Node.js zlib if needed
   if (!_initialized) {
-    initNodeZlib();
+    initNodeZlib()
   }
 
   // Return cached Node.js zlib if available
-  if (_zlib) return _zlib;
+  if (_zlib) return _zlib
 
   // Try pako (browser-compatible)
   if (typeof globalThis !== 'undefined' && globalThis.pako) {
     _zlib = {
       deflate: (data, level) => globalThis.pako.deflate(data, { level }),
-      inflate: (data) => globalThis.pako.inflate(data)
-    };
-    return _zlib;
+      inflate: (data) => globalThis.pako.inflate(data),
+    }
+    return _zlib
   }
 
-  return null;
+  return null
 }

@@ -4,17 +4,17 @@
 export const isNode =
   typeof process !== 'undefined' &&
   process.versions != null &&
-  process.versions.node != null;
+  process.versions.node != null
 
 // Detect browser environment
 export const isBrowser =
-  typeof window !== 'undefined' && typeof document !== 'undefined';
+  typeof window !== 'undefined' && typeof document !== 'undefined'
 
 // Detect Web Worker environment
 export const isWebWorker =
   typeof self !== 'undefined' &&
   typeof self.postMessage === 'function' &&
-  !isBrowser;
+  !isBrowser
 
 // Write ArrayBuffer to file
 // - Node.js: Writes to filesystem
@@ -24,12 +24,12 @@ export const isWebWorker =
 // @returns {Promise<void>}
 export async function writeToFile(buffer, filename) {
   if (isNode) {
-    const fs = await import('fs/promises');
-    await fs.writeFile(filename, new Uint8Array(buffer));
+    const fs = await import('node:fs/promises')
+    await fs.writeFile(filename, new Uint8Array(buffer))
   } else if (isBrowser) {
-    downloadBlob(buffer, filename);
+    downloadBlob(buffer, filename)
   } else {
-    throw new Error('writeToFile not supported in this environment');
+    throw new Error('writeToFile not supported in this environment')
   }
 }
 
@@ -37,33 +37,33 @@ export async function writeToFile(buffer, filename) {
 // @param {ArrayBuffer} buffer
 // @param {string} filename
 function downloadBlob(buffer, filename) {
-  const blob = new Blob([buffer], { type: 'application/octet-stream' });
-  const url = URL.createObjectURL(blob);
+  const blob = new Blob([buffer], { type: 'application/octet-stream' })
+  const url = URL.createObjectURL(blob)
 
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.style.display = 'none'
+  document.body.appendChild(a)
+  a.click()
 
   // Cleanup
   setTimeout(() => {
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, 100);
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }, 100)
 }
 
 // Get the native endianness of the platform
 // @returns {'little' | 'big'}
 export function getNativeEndianness() {
-  const buffer = new ArrayBuffer(2);
-  new DataView(buffer).setInt16(0, 256, true);
-  return new Int16Array(buffer)[0] === 256 ? 'little' : 'big';
+  const buffer = new ArrayBuffer(2)
+  new DataView(buffer).setInt16(0, 256, true)
+  return new Int16Array(buffer)[0] === 256 ? 'little' : 'big'
 }
 
 // True if native byte order is little-endian
-export const isLittleEndian = getNativeEndianness() === 'little';
+export const isLittleEndian = getNativeEndianness() === 'little'
 
 // Read file to ArrayBuffer
 // - Node.js: Reads from filesystem
@@ -72,15 +72,18 @@ export const isLittleEndian = getNativeEndianness() === 'little';
 // @returns {Promise<ArrayBuffer>}
 export async function readFromFile(filename) {
   if (isNode) {
-    const fs = await import('fs/promises');
-    const buffer = await fs.readFile(filename);
+    const fs = await import('node:fs/promises')
+    const buffer = await fs.readFile(filename)
     // Convert Node.js Buffer to ArrayBuffer
-    return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+    return buffer.buffer.slice(
+      buffer.byteOffset,
+      buffer.byteOffset + buffer.byteLength,
+    )
   } else if (isBrowser) {
     throw new Error(
-      'readFromFile not supported in browser. Use fetch() or FileReader API to load the file, then pass the ArrayBuffer to EXRReader.'
-    );
+      'readFromFile not supported in browser. Use fetch() or FileReader API to load the file, then pass the ArrayBuffer to EXRReader.',
+    )
   } else {
-    throw new Error('readFromFile not supported in this environment');
+    throw new Error('readFromFile not supported in this environment')
   }
 }
