@@ -54,55 +54,45 @@ export {
 
 // Core types
 export {
-  Vec2,
-  IntegerBounds,
-  SampleType,
-  Compression,
-  LineOrder,
   Blocks,
+  Compression,
+  IntegerBounds,
   LevelMode,
+  LineOrder,
   RoundingMode,
-} from './core/types.js';
-
-// Image structures
+  SampleType,
+  Vec2,
+} from './core/types.js'
 export {
-  Image,
-} from './image/image.js';
-
-export {
-  Layer,
-} from './image/layer.js';
-
-export {
-  SpecificChannels,
-  AnyChannels,
   AnyChannel,
+  AnyChannels,
   FlatSamples,
-} from './image/channels.js';
-
-// Metadata
-export {
-  Encoding,
-  LayerAttributes,
-  ImageAttributes,
-} from './meta/header.js';
-
-export {
-  ChannelDescription,
-  ChannelList,
-} from './meta/attributes.js';
+  SpecificChannels,
+} from './image/channels.js'
+// Image structures
+export { Image } from './image/image.js'
+export { Layer } from './image/layer.js'
+// I/O utilities
+export { BinaryReader } from './io/binary-reader.js'
+export { BinaryWriter } from './io/binary-writer.js'
 
 // Half-precision float utilities
 export {
+  float32ArrayToHalf,
   floatToHalf,
   halfToFloat,
-  float32ArrayToHalf,
   halfToFloat32Array,
-} from './lib/half.js';
-
-// I/O utilities
-export { BinaryReader } from './io/binary-reader.js';
-export { BinaryWriter } from './io/binary-writer.js';
+} from './lib/half.js'
+export {
+  ChannelDescription,
+  ChannelList,
+} from './meta/attributes.js'
+// Metadata
+export {
+  Encoding,
+  ImageAttributes,
+  LayerAttributes,
+} from './meta/header.js'
 
 // Reading metadata
-export { ParsedHeader, ParsedMeta, readMeta } from './meta/read-header.js';
+export { ParsedHeader, ParsedMeta, readMeta } from './meta/read-header.js'

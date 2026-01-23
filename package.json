@@ -26,6 +26,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "bench": "vitest bench",
+    "lint": "biome check src/ test/",
+    "lint:fix": "biome check src/ test/ --write",
+    "format": "biome format src/ test/ --write",
     "verify": "node scripts/verify-build.js",
     "prepublishOnly": "yarn build && yarn test && yarn verify"
   },
@@ -44,6 +47,7 @@
     "fflate": "^0.8.2"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.11",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^0.4.4",
     "@types/node": "^25.0.9",
