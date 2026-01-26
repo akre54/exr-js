@@ -33,5 +33,26 @@ jobs:
       - name: Verify build
         run: yarn verify
 
+      - name: Debug npm config
+        run: |
+          echo "npm version: $(npm --version)"
+          echo "node version: $(node --version)"
+          npm config list
+          echo "---"
+          echo "Checking .npmrc:"
+          cat ~/.npmrc 2>/dev/null || echo "No ~/.npmrc"
+          echo "---"
+          echo "Checking token is set:"
+          if [ -n "$NODE_AUTH_TOKEN" ]; then echo "NODE_AUTH_TOKEN is set (length: ${#NODE_AUTH_TOKEN})"; else echo "NODE_AUTH_TOKEN is NOT set"; fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Verify npm auth
+        run: npm whoami
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Publish to npm with provenance
         run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
