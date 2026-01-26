@@ -2,8 +2,6 @@
 // Uses Node.js zlib in Node environments, pako in browsers.
 // Handles module loading properly to avoid browser compatibility issues.
 
-import { createRequire } from 'node:module'
-
 // Detect Node.js environment
 const isNode =
   typeof process !== 'undefined' &&
@@ -11,38 +9,29 @@ const isNode =
   process.versions.node != null
 
 let _zlib = null
-let _initialized = false
 
-// Initialize Node.js zlib module synchronously using require
-function initNodeZlib() {
-  if (_initialized) return
-  _initialized = true
-
-  if (isNode) {
-    try {
-      // Use createRequire to load zlib synchronously in ES modules
-      const require = createRequire(import.meta.url)
-      const nodeZlib = require('node:zlib')
+// Start loading Node.js zlib eagerly using dynamic import (but don't await)
+// This avoids static imports that would cause Rollup to create global references
+// In browsers, this dynamic import will fail gracefully and fall back to pako
+// Note: We don't use top-level await to maintain CJS compatibility
+if (isNode) {
+  import('node:zlib')
+    .then((nodeZlib) => {
       _zlib = {
         deflate: (data, level) =>
           nodeZlib.deflateSync(Buffer.from(data), { level }),
         inflate: (data) => nodeZlib.inflateSync(Buffer.from(data)),
       }
-    } catch (_e) {
-      // zlib not available
-    }
-  }
+    })
+    .catch(() => {
+      // zlib not available - will fall back to pako in browsers
+    })
 }
 
 // Get the zlib implementation for the current environment.
 // Returns an object with deflate/inflate methods, or null if unavailable.
 // @returns {{ deflate: (data: Uint8Array, level: number) => Uint8Array, inflate: (data: Uint8Array) => Uint8Array } | null}
 export function getZlib() {
-  // Initialize Node.js zlib if needed
-  if (!_initialized) {
-    initNodeZlib()
-  }
-
   // Return cached Node.js zlib if available
   if (_zlib) return _zlib
 
