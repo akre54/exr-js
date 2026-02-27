@@ -5,12 +5,12 @@
   "type": "module",
   "main": "dist/exrjs.cjs",
   "module": "dist/exrjs.esm.js",
-  "browser": "dist/exrjs.browser.js",
+  "browser": "dist/exrjs.browser.esm.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "browser": "./dist/exrjs.browser.js",
+      "browser": "./dist/exrjs.browser.esm.js",
       "import": "./dist/exrjs.esm.js",
       "require": "./dist/exrjs.cjs"
     }
@@ -48,6 +48,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.11",
+    "@rollup/plugin-alias": "^6.0.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^0.4.4",
     "@types/node": "^25.0.9",
