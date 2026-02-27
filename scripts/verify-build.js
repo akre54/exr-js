@@ -10,7 +10,8 @@ const projectRoot = join(__dirname, '..');
 const requiredFiles = [
   'dist/exrjs.cjs',
   'dist/exrjs.esm.js',
-  'dist/exrjs.browser.js',
+  'dist/exrjs.browser.esm.js',
+  'dist/exrjs.umd.js',
   'dist/index.d.ts',
 ];
 
