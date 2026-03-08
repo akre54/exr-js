@@ -321,33 +321,34 @@ function downsampleChannel(
 ) {
   const targetPixels = targetSize.x * targetSize.y
 
-  // Always use Float32 for intermediate computation
+  // Extract entire source channel as Float32 (single allocation)
+  const sourcePixelCount = sourceSize.x * sourceSize.y
+  const sourceValues = channels.getChannelAsFloat32(
+    channelName,
+    halfToFloat,
+    sourcePixelCount,
+  )
+
+  // Downsample using direct array access (no allocations in loop)
   const values = new Float32Array(targetPixels)
+  const srcWidth = sourceSize.x
+  const srcHeight = sourceSize.y
 
   for (let ty = 0; ty < targetSize.y; ty++) {
+    const sy0 = ty * 2
+    const sy1 = Math.min(sy0 + 1, srcHeight - 1)
+
     for (let tx = 0; tx < targetSize.x; tx++) {
-      // Calculate source region (2x2 box, clamped to bounds)
       const sx0 = tx * 2
-      const sy0 = ty * 2
-      const sx1 = Math.min(sx0 + 1, sourceSize.x - 1)
-      const sy1 = Math.min(sy0 + 1, sourceSize.y - 1)
+      const sx1 = Math.min(sx0 + 1, srcWidth - 1)
 
-      // Sample 4 source pixels and average
-      let sum = 0
-      let count = 0
+      // Sample 4 source pixels and average (unrolled for performance)
+      const v00 = sourceValues[sy0 * srcWidth + sx0]
+      const v01 = sourceValues[sy0 * srcWidth + sx1]
+      const v10 = sourceValues[sy1 * srcWidth + sx0]
+      const v11 = sourceValues[sy1 * srcWidth + sx1]
 
-      for (const sy of [sy0, sy1]) {
-        for (const sx of [sx0, sx1]) {
-          if (sx < sourceSize.x && sy < sourceSize.y) {
-            const srcIdx = sy * sourceSize.x + sx
-            sum += getChannelValue(channels, channelName, srcIdx, sampleType)
-            count++
-          }
-        }
-      }
-
-      const targetIdx = ty * targetSize.x + tx
-      values[targetIdx] = count > 0 ? sum / count : 0
+      values[ty * targetSize.x + tx] = (v00 + v01 + v10 + v11) * 0.25
     }
   }
 
@@ -371,23 +372,6 @@ function downsampleChannel(
     }
     default:
       return FlatSamples.f32(values)
-  }
-}
-
-// Get a channel value as float
-function getChannelValue(channels, channelName, pixelIndex, sampleType) {
-  const bytes = channels.getSampleBytes(channelName, pixelIndex)
-  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
-
-  switch (sampleType) {
-    case SampleType.F16:
-      return halfToFloat(view.getUint16(0, true))
-    case SampleType.F32:
-      return view.getFloat32(0, true)
-    case SampleType.U32:
-      return view.getUint32(0, true)
-    default:
-      return 0
   }
 }
 

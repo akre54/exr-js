@@ -266,21 +266,19 @@ export function extractBlockData(blockIndex, channels, layerSize) {
   // For each scanline in the block
   for (let localY = 0; localY < pixelSize.y; localY++) {
     const globalY = pixelPosition.y + localY
+    const rowStartIndex = globalY * layerSize.x + pixelPosition.x
 
-    // For each channel (in alphabetical order)
+    // For each channel (in alphabetical order), write entire scanline at once
     for (const channelDesc of channelList.list) {
-      const bytesPerSample = channelDesc.bytesPerSample
-
-      // For each pixel in the scanline
-      for (let localX = 0; localX < pixelSize.x; localX++) {
-        const globalX = pixelPosition.x + localX
-        const pixelIndex = globalY * layerSize.x + globalX
-
-        // Get the sample value and write it
-        const bytes = channels.getSampleBytes(channelDesc.name, pixelIndex)
-        data.set(bytes, offset)
-        offset += bytesPerSample
-      }
+      const scanlineBytes = pixelSize.x * channelDesc.bytesPerSample
+      channels.writeScanlineBytes(
+        channelDesc.name,
+        rowStartIndex,
+        pixelSize.x,
+        data,
+        offset,
+      )
+      offset += scanlineBytes
     }
   }
 
