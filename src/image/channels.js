@@ -55,6 +55,47 @@ export class FlatSamples {
 
     return result
   }
+
+  // Write bytes for a range of samples directly into target buffer (batch operation)
+  writeBytesTo(startIndex, count, target, targetOffset) {
+    const bytes = bytesPerSample(this.sampleType)
+    const totalBytes = count * bytes
+
+    // Direct copy from underlying typed array buffer
+    const sourceBytes = new Uint8Array(
+      this.data.buffer,
+      this.data.byteOffset + startIndex * bytes,
+      totalBytes,
+    )
+    target.set(sourceBytes, targetOffset)
+  }
+
+  // Get all values as Float32Array (for mip level generation)
+  toFloat32Array(halfToFloatFn) {
+    switch (this.sampleType) {
+      case SampleType.F32:
+        // Already float32, return copy
+        return new Float32Array(this.data)
+      case SampleType.F16: {
+        // Convert from half-float
+        const result = new Float32Array(this.data.length)
+        for (let i = 0; i < this.data.length; i++) {
+          result[i] = halfToFloatFn(this.data[i])
+        }
+        return result
+      }
+      case SampleType.U32: {
+        // Convert from uint32
+        const result = new Float32Array(this.data.length)
+        for (let i = 0; i < this.data.length; i++) {
+          result[i] = this.data[i]
+        }
+        return result
+      }
+      default:
+        return new Float32Array(this.data)
+    }
+  }
 }
 
 // Single channel with name and sample data
@@ -100,6 +141,29 @@ export class AnyChannels {
   getSampleBytes(channelName, pixelIndex) {
     const channel = this._channelMap.get(channelName)
     return channel.samples.getBytesAt(pixelIndex)
+  }
+
+  // Write scanline bytes for a channel directly into target buffer (batch operation)
+  writeScanlineBytes(
+    channelName,
+    startPixelIndex,
+    pixelCount,
+    target,
+    targetOffset,
+  ) {
+    const channel = this._channelMap.get(channelName)
+    channel.samples.writeBytesTo(
+      startPixelIndex,
+      pixelCount,
+      target,
+      targetOffset,
+    )
+  }
+
+  // Get all values for a channel as Float32Array (for mip level generation)
+  getChannelAsFloat32(channelName, halfToFloatFn, _pixelCount) {
+    const channel = this._channelMap.get(channelName)
+    return channel.samples.toFloat32Array(halfToFloatFn)
   }
 }
 
@@ -182,6 +246,113 @@ export class SpecificChannels {
       case SampleType.U32:
         view.setUint32(0, value >>> 0, true)
         break
+    }
+
+    return result
+  }
+
+  // Write scanline bytes for a channel directly into target buffer (batch operation)
+  writeScanlineBytes(
+    channelName,
+    startPixelIndex,
+    pixelCount,
+    target,
+    targetOffset,
+  ) {
+    const channelIndex = this._channelIndices.get(channelName)
+    const channelDesc = this._originalChannels[channelIndex]
+    const bytes = bytesPerSample(channelDesc.sampleType)
+    const numChannels = this._originalChannels.length
+    const view = new DataView(
+      target.buffer,
+      target.byteOffset + targetOffset,
+      pixelCount * bytes,
+    )
+
+    if (typeof this.pixels === 'function') {
+      // Callback-based pixels
+      switch (channelDesc.sampleType) {
+        case SampleType.F16:
+          for (let i = 0; i < pixelCount; i++) {
+            const values = this.pixels(startPixelIndex + i)
+            view.setUint16(i * 2, floatToHalf(values[channelIndex]), true)
+          }
+          break
+        case SampleType.F32:
+          for (let i = 0; i < pixelCount; i++) {
+            const values = this.pixels(startPixelIndex + i)
+            view.setFloat32(i * 4, values[channelIndex], true)
+          }
+          break
+        case SampleType.U32:
+          for (let i = 0; i < pixelCount; i++) {
+            const values = this.pixels(startPixelIndex + i)
+            view.setUint32(i * 4, values[channelIndex] >>> 0, true)
+          }
+          break
+      }
+    } else if (this.pixels instanceof Float32Array) {
+      // Interleaved Float32Array
+      switch (channelDesc.sampleType) {
+        case SampleType.F16:
+          for (let i = 0; i < pixelCount; i++) {
+            const value =
+              this.pixels[(startPixelIndex + i) * numChannels + channelIndex]
+            view.setUint16(i * 2, floatToHalf(value), true)
+          }
+          break
+        case SampleType.F32:
+          for (let i = 0; i < pixelCount; i++) {
+            const value =
+              this.pixels[(startPixelIndex + i) * numChannels + channelIndex]
+            view.setFloat32(i * 4, value, true)
+          }
+          break
+        case SampleType.U32:
+          for (let i = 0; i < pixelCount; i++) {
+            const value =
+              this.pixels[(startPixelIndex + i) * numChannels + channelIndex]
+            view.setUint32(i * 4, value >>> 0, true)
+          }
+          break
+      }
+    } else {
+      throw new Error('Unsupported pixel data type')
+    }
+  }
+
+  // Get all values for a channel as Float32Array (for mip level generation)
+  getChannelAsFloat32(channelName, _halfToFloatFn, pixelCount) {
+    const channelIndex = this._channelIndices.get(channelName)
+    const numChannels = this._originalChannels.length
+
+    if (typeof this.pixels === 'function') {
+      // Callback-based: need to call for each pixel
+      if (pixelCount === undefined) {
+        throw new Error('pixelCount required for callback-based pixels')
+      }
+      const result = new Float32Array(pixelCount)
+      for (let i = 0; i < pixelCount; i++) {
+        const values = this.pixels(i)
+        result[i] = values[channelIndex]
+      }
+      return result
+    }
+
+    if (!(this.pixels instanceof Float32Array)) {
+      throw new Error(
+        'getChannelAsFloat32 only supported for Float32Array pixels',
+      )
+    }
+
+    // Count pixels (Float32Array length / num channels)
+    const count = pixelCount ?? this.pixels.length / numChannels
+    const result = new Float32Array(count)
+
+    // Extract channel values with stride
+    for (let i = 0; i < count; i++) {
+      const value = this.pixels[i * numChannels + channelIndex]
+      result[i] = value
     }
 
     return result
