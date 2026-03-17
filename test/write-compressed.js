@@ -117,6 +117,11 @@ test.each(testCases)('write EXR with $name compression', ({
 
   expect(buffer.byteLength).toBeGreaterThan(0)
 
+  // Verify ZIP compression actually reduces file size
+  if (name === 'zip1' || name === 'zip16') {
+    expect(buffer.byteLength).toBeLessThan(uncompressedSize * 0.5)
+  }
+
   // Verify magic number
   const view = new DataView(buffer)
   const magic = view.getUint32(0, true)
