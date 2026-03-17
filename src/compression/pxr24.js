@@ -6,10 +6,9 @@
 // 2. Apply delta encoding (difference from previous pixel per channel row)
 // 3. Transpose bytes (group all MSBs together, then second bytes, etc.)
 // 4. Compress with zlib
-// In browser environments without pako, compression will fail.
 
+import { unzlibSync, zlibSync } from 'fflate'
 import { SampleType } from '../core/types.js'
-import { getZlib } from '../io/zlib.js'
 
 // Convert 32-bit float to 24-bit representation
 // This is a lossy conversion that rounds the mantissa from 23 bits to 15 bits.
@@ -176,17 +175,7 @@ export function compressPXR24(data, channels, width, height) {
     }
   }
 
-  // Compress with zlib
-  const zlib = getZlib()
-  if (!zlib) {
-    throw new Error(
-      'zlib not available for PXR24 compression. Include pako library in browser.',
-    )
-  }
-
-  const compressed = zlib.deflate(encodedBE, 4)
-
-  return new Uint8Array(compressed)
+  return zlibSync(encodedBE, { level: 4 })
 }
 
 // Decompress PXR24 data
@@ -203,15 +192,8 @@ export function decompressPXR24(
   height,
   expectedSize,
 ) {
-  const zlib = getZlib()
-  if (!zlib) {
-    throw new Error(
-      'zlib not available for PXR24 decompression. Include pako library in browser.',
-    )
-  }
-
   // Decompress with zlib
-  const encodedBE = zlib.inflate(compressed)
+  const encodedBE = unzlibSync(compressed)
 
   // Output buffer
   const output = new Uint8Array(expectedSize)
