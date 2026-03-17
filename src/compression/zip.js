@@ -4,9 +4,8 @@
 // - ZIP16: Compresses 16 scanlines at a time (better compression)
 // This compression method is lossless and produces small files,
 // but is slower than RLE.
-// In browser environments without pako, falls back to uncompressed storage.
 
-import { getZlib } from '../io/zlib.js'
+import { unzlibSync, zlibSync } from 'fflate'
 import {
   postprocessAfterDecompression,
   preprocessForCompression,
@@ -27,17 +26,7 @@ export function compressZIP(data) {
   const processed = new Uint8Array(data)
   preprocessForCompression(processed)
 
-  const zlib = getZlib()
-  if (!zlib) {
-    // No zlib available - return preprocessed but uncompressed
-    // The file format allows this (decompressor checks sizes)
-    return processed
-  }
-
-  // Compress with zlib deflate
-  const compressed = zlib.deflate(processed, ZIP_COMPRESSION_LEVEL)
-
-  return new Uint8Array(compressed)
+  return zlibSync(processed, { level: ZIP_COMPRESSION_LEVEL })
 }
 
 // Decompress ZIP data
@@ -52,15 +41,8 @@ export function decompressZIP(compressed, expectedSize) {
     return result
   }
 
-  const zlib = getZlib()
-  if (!zlib) {
-    throw new Error(
-      'zlib not available for ZIP decompression. Include pako library in browser.',
-    )
-  }
-
   // Decompress with zlib inflate
-  const decompressed = zlib.inflate(compressed)
+  const decompressed = unzlibSync(compressed)
 
   // Verify size
   if (decompressed.length !== expectedSize) {

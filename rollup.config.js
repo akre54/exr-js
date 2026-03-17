@@ -1,8 +1,6 @@
-import { fileURLToPath } from 'url';
-import dts from 'rollup-plugin-dts';
-import alias from '@rollup/plugin-alias';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import terser from '@rollup/plugin-terser';
+import dts from 'rollup-plugin-dts';
 
 const external = ['fflate', 'fs', 'path', 'module'];
 
@@ -55,14 +53,6 @@ export default [
       plugins: [terser()],
     },
     plugins: [
-      alias({
-        entries: [
-          {
-            find: /^.*\/io\/zlib\.js$/,
-            replacement: fileURLToPath(new URL('./src/io/zlib.browser.js', import.meta.url)),
-          },
-        ],
-      }),
       nodeResolve({
         browser: true,
         preferBuiltins: false,
