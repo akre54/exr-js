@@ -1,6 +1,6 @@
 {
   "name": "exrjs",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "JavaScript library for writing OpenEXR images with multi-part support and AOVs",
   "type": "module",
   "main": "dist/exrjs.cjs",
