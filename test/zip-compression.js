@@ -16,8 +16,16 @@ const UNCOMPRESSED = new Encoding(
   Blocks.ScanLines,
   LineOrder.Increasing,
 )
-const ZIP1 = new Encoding(Compression.ZIP1, Blocks.ScanLines, LineOrder.Increasing)
-const ZIP16 = new Encoding(Compression.ZIP16, Blocks.ScanLines, LineOrder.Increasing)
+const ZIP1 = new Encoding(
+  Compression.ZIP1,
+  Blocks.ScanLines,
+  LineOrder.Increasing,
+)
+const ZIP16 = new Encoding(
+  Compression.ZIP16,
+  Blocks.ScanLines,
+  LineOrder.Increasing,
+)
 
 // Gradient pattern — highly compressible
 function makeGradient(width, height) {
@@ -47,7 +55,8 @@ function makeSolid(width, height, r = 0.5, g = 0.3, b = 0.1, a = 1.0) {
 }
 
 test('ZIP1 compresses gradient to less than 50% of raw pixel size', () => {
-  const width = 128, height = 128
+  const width = 128,
+    height = 128
   const pixels = makeGradient(width, height)
   const rawSize = width * height * 4 * 4 // 4 channels × 4 bytes (F32)
 
@@ -56,7 +65,8 @@ test('ZIP1 compresses gradient to less than 50% of raw pixel size', () => {
 })
 
 test('ZIP16 compresses gradient to less than 50% of raw pixel size', () => {
-  const width = 128, height = 128
+  const width = 128,
+    height = 128
   const pixels = makeGradient(width, height)
   const rawSize = width * height * 4 * 4
 
@@ -65,7 +75,8 @@ test('ZIP16 compresses gradient to less than 50% of raw pixel size', () => {
 })
 
 test('ZIP16 produces smaller output than ZIP1 for gradient data', () => {
-  const width = 128, height = 128
+  const width = 128,
+    height = 128
   const pixels = makeGradient(width, height)
 
   const zip1Buffer = encodeRgba(width, height, pixels, ZIP1)
@@ -75,7 +86,8 @@ test('ZIP16 produces smaller output than ZIP1 for gradient data', () => {
 })
 
 test('solid color compresses to less than 5% of raw pixel size with ZIP16', () => {
-  const width = 128, height = 128
+  const width = 128,
+    height = 128
   const pixels = makeSolid(width, height)
   const rawSize = width * height * 4 * 4
 
@@ -84,7 +96,8 @@ test('solid color compresses to less than 5% of raw pixel size with ZIP16', () =
 })
 
 test('ZIP1 roundtrip is lossless', () => {
-  const width = 64, height = 64
+  const width = 64,
+    height = 64
   const original = makeGradient(width, height)
 
   const buffer = encodeRgba(width, height, original, ZIP1)
@@ -100,7 +113,8 @@ test('ZIP1 roundtrip is lossless', () => {
 })
 
 test('ZIP16 roundtrip is lossless', () => {
-  const width = 64, height = 64
+  const width = 64,
+    height = 64
   const original = makeGradient(width, height)
 
   const buffer = encodeRgba(width, height, original, ZIP16)
@@ -116,10 +130,13 @@ test('ZIP16 roundtrip is lossless', () => {
 })
 
 test('ZIP16 roundtrip matches uncompressed output pixel-for-pixel', () => {
-  const width = 32, height = 32
+  const width = 32,
+    height = 32
   const pixels = makeGradient(width, height)
 
-  const uncompressedResult = decodeRgba(encodeRgba(width, height, pixels, UNCOMPRESSED))
+  const uncompressedResult = decodeRgba(
+    encodeRgba(width, height, pixels, UNCOMPRESSED),
+  )
   const zip16Result = decodeRgba(encodeRgba(width, height, pixels, ZIP16))
 
   expect(zip16Result.pixels.length).toBe(uncompressedResult.pixels.length)
@@ -129,7 +146,8 @@ test('ZIP16 roundtrip matches uncompressed output pixel-for-pixel', () => {
 })
 
 test('ZIP1 compresses a single-row image', () => {
-  const width = 256, height = 1
+  const width = 256,
+    height = 1
   const pixels = makeGradient(width, height)
   const rawSize = width * height * 4 * 4
 
